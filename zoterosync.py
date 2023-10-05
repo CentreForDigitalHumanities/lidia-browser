@@ -1,11 +1,15 @@
 #%%
 import json
+import logging
 import os
 import pathlib
 import sqlite3
 
 from dotenv import load_dotenv
 from pyzotero import zotero
+
+#%% Logging config
+logging.basicConfig(level=logging.INFO)
 
 #%% Zotero library configuration
 load_dotenv()
@@ -68,9 +72,10 @@ def sync_publications(since):
                 ;""", {'key': key, 'content': json.dumps(obj)}
                 )
             conn.commit()
-        print(f"Updated {i} publications")
+        logging.info(f"Updated {i} publications")
         return 1
     else:
+        logging.info(f"No new publications found")
         return 0
 
 
@@ -93,9 +98,10 @@ def sync_annotations(since):
                 ;""", {'key': key, 'content': json.dumps(obj)}
                 )
             conn.commit()
-        print(f"Updated {i} publications")
+        logging.info(f"Updated {i} annotations")
         return 1
     else:
+        logging.info(f"No new annotations found")
         return 0
 
 
@@ -110,7 +116,7 @@ def get_local_library_version():
     )
     row = cur.fetchone()
     local_library_version = row[0] if row else -1
-    print(f"local_library_version: {local_library_version}")
+    logging.info(f"local_library_version: {local_library_version}")
     return local_library_version if local_library_version else 0
 
 
@@ -131,11 +137,11 @@ def sync():
                 }
             )
             conn.commit()
-            print("Sync successful")
+            logging.info("Sync successful")
         else:
-            print("Sync incomplete")
+            logging.warn("Sync incomplete")
     else:
-        print("Local library up to date")
+        logging.info("Local library up to date")
 
 #%%
 sync()
