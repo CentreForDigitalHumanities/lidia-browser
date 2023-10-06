@@ -6,6 +6,7 @@ import pathlib
 import sqlite3
 
 from dotenv import load_dotenv
+import yaml
 from pyzotero import zotero
 
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +37,7 @@ def create_tables(conn, cur):
         '''CREATE TABLE IF NOT EXISTS annotations (
             key TEXT PRIMARY KEY
             , content JSON
+            , annotation JSON
             );
         ''')
         cur.execute(
@@ -104,15 +106,24 @@ def sync_annotations(conn, cur, zot, since):
     # https://pyzotero.readthedocs.io/en/latest/#the-follow-and-everything-methods
     items = zot.everything(zot.items(itemType='annotation', since=since))
     if items:
-        for i, item in enumerate(items):
+        for item in items:
             key = item['key']
-            obj = item
+            annotation = item['data']['annotationComment']
+            annotation = annotation.removeprefix('~~~~LIDIA~~~~')
+            try:
+                annotation = json.dumps(yaml.safe_load(annotation))
+            except yaml.YAMLError as e:
+                logging.error(f"YAMLError: {e}")
             try:
                 cur.execute("""
-                    INSERT INTO annotations (key, content)
-                    VALUES (:key, :content)
+                    INSERT INTO annotations (key, content, annotation)
+                    VALUES (:key, :content, :annotation)
                     ON CONFLICT (key) DO UPDATE SET content = :content
-                    ;""", {'key': key, 'content': json.dumps(obj)}
+                    ;""", {
+                            'key': key,
+                            'content': json.dumps(item),
+                            'annotation': annotation,
+                        }
                     )
                 conn.commit()
             except sqlite3.Error as e:
