@@ -98,7 +98,7 @@ def sync_annotations(since):
                 ;""", {'key': key, 'content': json.dumps(obj)}
                 )
             conn.commit()
-        logging.info(f"Updated {i} annotations")
+        logging.info(f"Updated {i + 1} annotations")
         return 1
     else:
         logging.info(f"No new annotations found")
@@ -139,7 +139,7 @@ def sync():
             conn.commit()
             logging.info("Sync successful")
         else:
-            logging.warn("Sync incomplete")
+            logging.warning("Sync incomplete")
     else:
         logging.info("Local library up to date")
 
@@ -147,4 +147,6 @@ def sync():
 sync()
 
 #%%
-get_local_library_version()
+logging.info(
+    f"Local library version: {get_local_library_version()}, Remote library version: {z.last_modified_version()}",
+)
