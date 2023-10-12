@@ -1,3 +1,4 @@
 .tool-versions
 .env
 *.db
+__pycache__/
