@@ -22,6 +22,7 @@ def load_configuration():
         'api_key': os.getenv('ZOTERO_API_KEY', '<not set>'),
     }
 
+    # Skip projroot: "argument of type 'PosixPath' is not iterable"
     if any('<not set>' in value for key, value in config.items() if key != 'projroot'):
         raise Exception("Provide all required configuration in your .env file.")
 
@@ -131,7 +132,7 @@ def sync_annotations(conn, cur, zot, since):
                 conn.commit()
             except sqlite3.Error as e:
                 logging.error(f"Database error: {e}")
-        logging.info(f"Updated {len(items)} publications")
+        logging.info(f"Updated {len(items)} annotations")
     else:
         logging.info(f"No new annotations found")
 
