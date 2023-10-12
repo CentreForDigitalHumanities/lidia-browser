@@ -16,11 +16,14 @@ def load_configuration():
     load_dotenv()
     config = {
         'projroot': pathlib.Path(__file__).parents[0].resolve(),
-        'dbname': os.getenv('DBNAME'),
-        'library_id': os.getenv('ZOTERO_LIBRARY_ID'),
-        'library_type': os.getenv('ZOTERO_LIBRARY_TYPE'),
-        'api_key': os.getenv('ZOTERO_API_KEY'),
+        'dbname': os.getenv('DBNAME', '<not set>'),
+        'library_id': os.getenv('ZOTERO_LIBRARY_ID', '<not set>'),
+        'library_type': os.getenv('ZOTERO_LIBRARY_TYPE', '<not set>'),
+        'api_key': os.getenv('ZOTERO_API_KEY', '<not set>'),
     }
+
+    if any('<not set>' in value for key, value in config.items() if key != 'projroot'):
+        raise Exception("Provide all required configuration in your .env file.")
 
     return config
 
