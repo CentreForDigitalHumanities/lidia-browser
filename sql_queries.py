@@ -1,3 +1,25 @@
+sql_create_publications = """
+CREATE TABLE IF NOT EXISTS publications (
+    id TEXT PRIMARY KEY
+    , content JSON
+    , attachment_id TEXT
+);
+"""
+sql_create_annotations = """
+CREATE TABLE IF NOT EXISTS annotations (
+    id TEXT PRIMARY KEY
+    , content JSON
+    , annotation JSON
+);
+"""
+
+sql_create_sync = """
+CREATE TABLE IF NOT EXISTS sync (
+    library_id TEXT PRIMARY KEY
+    , library_version INTEGER
+);
+"""
+
 sql_create_view_annotations = """
 CREATE VIEW IF NOT EXISTS view_annotations AS
 SELECT

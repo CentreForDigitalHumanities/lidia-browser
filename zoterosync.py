@@ -33,26 +33,9 @@ def load_configuration():
 
 def create_tables(conn, cur):
     try:
-        cur.execute(
-        '''CREATE TABLE IF NOT EXISTS publications (
-            id TEXT PRIMARY KEY
-            , content JSON
-            , attachment_id TEXT
-            );
-        ''')
-        cur.execute(
-        '''CREATE TABLE IF NOT EXISTS annotations (
-            id TEXT PRIMARY KEY
-            , content JSON
-            , annotation JSON
-            );
-        ''')
-        cur.execute(
-        '''CREATE TABLE IF NOT EXISTS sync (
-            library_id TEXT PRIMARY KEY
-            , library_version INTEGER
-            );
-        ''')
+        cur.execute(sql_create_publications)
+        cur.execute(sql_create_annotations)
+        cur.execute(sql_create_sync)
         cur.execute(sql_create_view_annotations)
         cur.execute(sql_create_view_annotations_termgroups)
         conn.commit()
