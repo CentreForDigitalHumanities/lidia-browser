@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 import yaml
 from pyzotero import zotero
 
+from sql_queries import *
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -51,6 +53,8 @@ def create_tables(conn, cur):
             , library_version INTEGER
             );
         ''')
+        cur.execute(sql_create_view_annotations)
+        cur.execute(sql_create_view_annotations_termgroups)
         conn.commit()
     except sqlite3.Error as e:
         logging.error(f"Database error: {e}")
