@@ -33,20 +33,21 @@ def create_tables(conn, cur):
     try:
         cur.execute(
         '''CREATE TABLE IF NOT EXISTS publications (
-            key TEXT PRIMARY KEY
+            id TEXT PRIMARY KEY
             , content JSON
+            , attachment_id TEXT
             );
         ''')
         cur.execute(
         '''CREATE TABLE IF NOT EXISTS annotations (
-            key TEXT PRIMARY KEY
+            id TEXT PRIMARY KEY
             , content JSON
             , annotation JSON
             );
         ''')
         cur.execute(
         '''CREATE TABLE IF NOT EXISTS sync (
-            library TEXT PRIMARY KEY
+            library_id TEXT PRIMARY KEY
             , library_version INTEGER
             );
         ''')
@@ -87,12 +88,18 @@ def sync_publications(conn, cur, zot, since):
         for item in items:
             key = item['key']
             obj = item
+            # Annotations are linked to their parent PDF, not the bibliographic item
+            # Assuming only one attachment per publication
+            url = obj.get("links", {}).get("attachment", {}).get("href")
+            attachment_id = url.rstrip('/').split('/')[-1] if url else ''
             try:
                 cur.execute("""
-                    INSERT INTO publications (key, content)
-                    VALUES (:key, :content)
-                    ON CONFLICT (key) DO UPDATE SET content = :content
-                    ;""", {'key': key, 'content': json.dumps(obj)}
+                    INSERT INTO publications (id, content, attachment_id)
+                    VALUES (:id, :content, :attachment_id)
+                    ON CONFLICT (id) DO UPDATE SET
+                            content = :content,
+                            attachment_id = :attachment_id
+                    ;""", {'id': key, 'content': json.dumps(obj), 'attachment_id': attachment_id}
                     )
                 conn.commit()
             except sqlite3.Error as e:
@@ -120,11 +127,13 @@ def sync_annotations(conn, cur, zot, since):
                 logging.error(f"YAMLError: {e}")
             try:
                 cur.execute("""
-                    INSERT INTO annotations (key, content, annotation)
-                    VALUES (:key, :content, :annotation)
-                    ON CONFLICT (key) DO UPDATE SET content = :content
+                    INSERT INTO annotations (id, content, annotation)
+                    VALUES (:id, :content, :annotation)
+                    ON CONFLICT (id) DO UPDATE SET
+                            content = :content,
+                            annotation = :annotation
                     ;""", {
-                            'key': key,
+                            'id': key,
                             'content': json.dumps(item),
                             'annotation': annotation,
                         }
@@ -144,7 +153,7 @@ def get_local_library_version(cur, zot):
         cur.execute("""
             SELECT library_version
             FROM sync
-            WHERE library=:library_id
+            WHERE library_id = :library_id
             ;""", {'library_id': zot.library_id}
         )
         row = cur.fetchone()
@@ -163,9 +172,9 @@ def sync(conn, cur, zot):
         sync_annotations(conn, cur, zot, since=local_library_version)
         try:
             cur.execute('''
-            INSERT INTO sync (library, library_version)
+            INSERT INTO sync (library_id, library_version)
             VALUES (:library_id, :library_version)
-            ON CONFLICT (library) DO UPDATE SET library_version = :library_version
+            ON CONFLICT (library_id) DO UPDATE SET library_version = :library_version
             ;''', {
                     'library_version': zotero_library_version,
                     'library_id': zot.library_id
