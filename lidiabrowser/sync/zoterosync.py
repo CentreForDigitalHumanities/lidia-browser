@@ -14,12 +14,12 @@ def get_zotero_instance() -> zotero.Zotero:
         settings.ZOTERO_LIBRARY_ID,
         settings.ZOTERO_LIBRARY_TYPE,
         settings.ZOTERO_API_KEY,
-        preserve_json_order=True
+        preserve_json_order=True,
     )
 
 
 def sync_publications(zot: zotero.Zotero, since: int):
-    """ Fetches publications which have been updated since the given library version.
+    """Fetches publications which have been updated since the given library version.
     Saves the publications to database.
     """
     # All publications should be placed top-level (not in collections)
@@ -28,16 +28,14 @@ def sync_publications(zot: zotero.Zotero, since: int):
     items = zot.everything(zot.top(since=since))
     if items:
         for item in items:
-            key = item['key']
+            key = item["key"]
             obj = item
             # Annotations are linked to their parent PDF, not the bibliographic
             # item
             # Assuming only one attachment per publication
             url: str = obj.get("links", {}).get("attachment", {}).get("href")
-            attachment_id: str = url.rstrip('/').split('/')[-1] if url else ''
-            publication, _ = Publication.objects.get_or_create(
-                zotero_id=key
-            )
+            attachment_id: str = url.rstrip("/").split("/")[-1] if url else ""
+            publication, _ = Publication.objects.get_or_create(zotero_id=key)
             publication.content = obj
             publication.attachment_id = attachment_id
             publication.save()
@@ -47,31 +45,27 @@ def sync_publications(zot: zotero.Zotero, since: int):
 
 
 def sync_annotations(zot: zotero.Zotero, since: int):
-    """ Fetches items of type 'annotation' which have been updated since the given 
+    """Fetches items of type 'annotation' which have been updated since the given
     library version.
     Saves the annotations to database.
     """
     # TODO: use Zotero.follow() or iterfollow() methods
     # https://pyzotero.readthedocs.io/en/latest/#the-follow-and-everything-methods
-    items = zot.everything(zot.items(itemType='annotation', since=since))
+    items = zot.everything(zot.items(itemType="annotation", since=since))
     if items:
         for item in items:
-            key = item['key']
-            comment = item['data']['annotationComment']
-            comment = comment.removeprefix('~~~~LIDIA~~~~')
+            key = item["key"]
+            comment = item["data"]["annotationComment"]
+            comment = comment.removeprefix("~~~~LIDIA~~~~")
             try:
                 comment_dict = yaml.safe_load(comment)
             except yaml.YAMLError as e:
-                logger.error(
-                    f"YAMLError in annotation with key {key}: {e}. Ignoring."
-                )
+                logger.error(f"YAMLError in annotation with key {key}: {e}. Ignoring.")
                 continue
             if comment_dict is None:
                 # This happens if comment is an empty string
                 comment_dict = {}
-            annotation, _ = Annotation.objects.get_or_create(
-                zotero_id=key
-            )
+            annotation, _ = Annotation.objects.get_or_create(zotero_id=key)
             annotation.content = item
             annotation.comment = comment_dict
             annotation.save()
@@ -81,8 +75,7 @@ def sync_annotations(zot: zotero.Zotero, since: int):
 
 
 def get_local_library_version(zot: zotero.Zotero):
-    """ Returns the last synced library version from the local database.
-    """
+    """Returns the last synced library version from the local database."""
     local_library_version = None
     try:
         sync = Sync.objects.get(library_id=zot.library_id)
@@ -101,13 +94,10 @@ def update_local_library_version(zot: zotero.Zotero, version: int):
         raise ValueError("version argument should be of type int")
     library_id = zot.library_id
     sync, _ = Sync.objects.get_or_create(
-        library_id=library_id,
-        defaults={
-            "library_version": version
-        }
+        library_id=library_id, defaults={"library_version": version}
     )
     sync.library_version = version
-    sync.save()    
+    sync.save()
 
 
 def sync() -> None:
@@ -124,4 +114,3 @@ def sync() -> None:
         logger.info("Sync successful")
     else:
         logger.info("Local library up to date")
-

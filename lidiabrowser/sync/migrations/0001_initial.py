@@ -4,37 +4,59 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Annotation',
+            name="Annotation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('zotero_id', models.CharField(max_length=100, unique=True)),
-                ('content', models.JSONField(default=dict)),
-                ('comment', models.JSONField(default=dict)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("zotero_id", models.CharField(max_length=100, unique=True)),
+                ("content", models.JSONField(default=dict)),
+                ("comment", models.JSONField(default=dict)),
             ],
         ),
         migrations.CreateModel(
-            name='Publication',
+            name="Publication",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('zotero_id', models.CharField(max_length=100, unique=True)),
-                ('content', models.JSONField(default=dict)),
-                ('attachment_id', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("zotero_id", models.CharField(max_length=100, unique=True)),
+                ("content", models.JSONField(default=dict)),
+                ("attachment_id", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Sync',
+            name="Sync",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('library_id', models.CharField(max_length=100, unique=True)),
-                ('library_version', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("library_id", models.CharField(max_length=100, unique=True)),
+                ("library_version", models.IntegerField()),
             ],
         ),
     ]
