@@ -37,4 +37,5 @@ jobs:
           ruff --output-format=github --target-version=py38 .
       - name: Test with pytest
         run: |
+          cp lidiabrowser/lidiabrowser/.env.dist lidiabrowser/lidiabrowser/.env
           pytest lidiabrowser
