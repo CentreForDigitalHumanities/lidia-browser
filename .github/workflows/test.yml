@@ -37,4 +37,4 @@ jobs:
           ruff --output-format=github --target-version=py38 .
       - name: Test with pytest
         run: |
-          pytest
+          pytest lidiabrowser
