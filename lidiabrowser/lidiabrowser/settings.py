@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
+
+root = environ.Path(__file__)
+env = environ.Env()
+environ.Env.read_env()
+
+SITE_ROOT = root()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,3 +128,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# LIDIA-specific settings
+
+ZOTERO_LIBRARY_ID = env.str('ZOTERO_LIBRARY_ID')
+ZOTERO_LIBRARY_TYPE = env.str('ZOTERO_LIBRARY_TYPE')
+ZOTERO_API_KEY = env.str('ZOTERO_API_KEY')

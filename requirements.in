@@ -1,3 +1,5 @@
 python-dotenv
 pyyaml
 pyzotero
+Django
+django-environ
