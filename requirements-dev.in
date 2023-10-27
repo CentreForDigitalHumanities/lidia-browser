@@ -1,0 +1,4 @@
+pytest
+pytest-django
+django-types
+ruff
