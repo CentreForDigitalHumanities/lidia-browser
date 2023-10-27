@@ -33,11 +33,8 @@ def sync_publications(zot: zotero.Zotero, since: int):
             # Annotations are linked to their parent PDF, not the bibliographic
             # item
             # Assuming only one attachment per publication
-            url: str = obj.get("links", {}).get("attachment", {}).get("href")
-            attachment_id: str = url.rstrip("/").split("/")[-1] if url else ""
             publication, _ = Publication.objects.get_or_create(zotero_id=key)
             publication.content = obj
-            publication.attachment_id = attachment_id
             publication.save()
         logging.info(f"Updated {len(items)} publications")
     else:
@@ -55,19 +52,8 @@ def sync_annotations(zot: zotero.Zotero, since: int):
     if items:
         for item in items:
             key = item["key"]
-            comment = item["data"]["annotationComment"]
-            comment = comment.removeprefix("~~~~LIDIA~~~~")
-            try:
-                comment_dict = yaml.safe_load(comment)
-            except yaml.YAMLError as e:
-                logger.error(f"YAMLError in annotation with key {key}: {e}. Ignoring.")
-                continue
-            if comment_dict is None:
-                # This happens if comment is an empty string
-                comment_dict = {}
             annotation, _ = Annotation.objects.get_or_create(zotero_id=key)
             annotation.content = item
-            annotation.comment = comment_dict
             annotation.save()
         logging.info(f"Updated {len(items)} annotations")
     else:
