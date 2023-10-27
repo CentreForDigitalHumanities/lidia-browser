@@ -1,7 +1,6 @@
 from django.conf import settings
 
 import logging
-import yaml
 from pyzotero import zotero
 
 from sync.models import Annotation, Publication, Sync
@@ -26,19 +25,24 @@ def sync_publications(zot: zotero.Zotero, since: int):
     # Non-publication items might exist as well but can be ignored.
     # (There's no way to filter on bibliographic items in general directly?)
     items = zot.everything(zot.top(since=since))
-    if items:
-        for item in items:
-            key = item["key"]
-            obj = item
-            # Annotations are linked to their parent PDF, not the bibliographic
-            # item
-            # Assuming only one attachment per publication
-            publication, _ = Publication.objects.get_or_create(zotero_id=key)
-            publication.content = obj
-            publication.save()
-        logging.info(f"Updated {len(items)} publications")
-    else:
-        logging.info("No new publications found")
+    n_created = 0
+    n_updated = 0
+    for item in items:
+        key = item["key"]
+        obj = item
+        # Annotations are linked to their parent PDF, not the bibliographic
+        # item
+        # Assuming only one attachment per publication
+        publication, created = Publication.objects.get_or_create(zotero_id=key)
+        publication.content = obj
+        publication.save()
+        if created:
+            n_created += 1
+        else:
+            n_updated += 1
+    logging.info(
+        f"Updated {n_updated} publications; added {n_created} new publications."
+    )
 
 
 def sync_annotations(zot: zotero.Zotero, since: int):
@@ -49,15 +53,18 @@ def sync_annotations(zot: zotero.Zotero, since: int):
     # TODO: use Zotero.follow() or iterfollow() methods
     # https://pyzotero.readthedocs.io/en/latest/#the-follow-and-everything-methods
     items = zot.everything(zot.items(itemType="annotation", since=since))
-    if items:
-        for item in items:
-            key = item["key"]
-            annotation, _ = Annotation.objects.get_or_create(zotero_id=key)
-            annotation.content = item
-            annotation.save()
-        logging.info(f"Updated {len(items)} annotations")
-    else:
-        logging.info("No new annotations found")
+    n_created = 0
+    n_updated = 0
+    for item in items:
+        key = item["key"]
+        annotation, created = Annotation.objects.get_or_create(zotero_id=key)
+        annotation.content = item
+        annotation.save()
+        if created:
+            n_created += 1
+        else:
+            n_updated += 1
+    logging.info(f"Updated {n_updated} annotations; added {n_created} new annotations.")
 
 
 def get_local_library_version(zot: zotero.Zotero):
@@ -71,7 +78,6 @@ def get_local_library_version(zot: zotero.Zotero):
         local_library_version = -1
     else:
         local_library_version = sync.library_version
-    logger.info(f"local_library_version: {local_library_version}")
     return local_library_version
 
 
@@ -93,10 +99,15 @@ def sync() -> None:
     zot = get_zotero_instance()
     zotero_library_version = zot.last_modified_version()
     local_library_version = get_local_library_version(zot)
-    if zotero_library_version > local_library_version:
+    logger.info(f"Remote library version: {zotero_library_version}.")
+    if local_library_version == -1:
+        logger.info("Local library not present.")
+    else:
+        logger.info(f"Local library version: {local_library_version}.")
+    if True or zotero_library_version > local_library_version:
         sync_publications(zot, since=local_library_version)
         sync_annotations(zot, since=local_library_version)
         update_local_library_version(zot, zotero_library_version)
         logger.info("Sync successful")
     else:
-        logger.info("Local library up to date")
+        logger.info("Local library up to date; not syncing")
