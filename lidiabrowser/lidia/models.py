@@ -86,4 +86,4 @@ class TermGroup(models.Model):
     lidiaterm = models.ForeignKey(LidiaTerm, models.CASCADE, null=True)
 
     def __str__(self):
-        return f"{self.annotation_id}: {lidiaterm}"
+        return f"{self.annotation_id}: {self.lidiaterm}"

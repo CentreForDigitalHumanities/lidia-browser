@@ -132,6 +132,6 @@ def populate():
         )
         if not created:
             publication.attachment_id = attachment_id
-            publication.title = title
+            publication.title = data.get('title', ''),
             # Just save all fields without checking for changes
             publication.save()
