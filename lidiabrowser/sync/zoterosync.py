@@ -117,21 +117,22 @@ def sync() -> None:
 
 def populate():
     for pub in Publication.objects.iterator():
-        zotero_id = pub.zotero_id
-        attachment_url = pub.content.get('links', {}).get('attachment', {}).get('href', '')
-        attachment_id = attachment_url.rstrip('/').split('/')[-1]
-        data = pub.content.get('data', {})
-        defaults = {
-            'attachment_id': attachment_id,
-            'title': data.get('title', ''),
-            }
-        publication, created = LidiaPublication.objects.get_or_create(
-            zotero_id=zotero_id,
-            # Only set fields if a new object is created
-            defaults=defaults
-        )
-        if not created:
-            publication.attachment_id = attachment_id
-            publication.title = data.get('title', ''),
-            # Just save all fields without checking for changes
-            publication.save()
+        with transaction.atomic():
+            zotero_id = pub.zotero_id
+            attachment_url = pub.content.get('links', {}).get('attachment', {}).get('href', '')
+            attachment_id = attachment_url.rstrip('/').split('/')[-1]
+            data = pub.content.get('data', {})
+            defaults = {
+                'attachment_id': attachment_id,
+                'title': data.get('title', ''),
+                }
+            publication, created = LidiaPublication.objects.get_or_create(
+                zotero_id=zotero_id,
+                # Only set fields if a new object is created
+                defaults=defaults
+            )
+            if not created:
+                publication.attachment_id = attachment_id
+                publication.title = data.get('title', ''),
+                # Just save all fields without checking for changes
+                publication.save()
