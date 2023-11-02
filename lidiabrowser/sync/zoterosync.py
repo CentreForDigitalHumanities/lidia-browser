@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.db import transaction
 
 import logging
 from pyzotero import zotero
 
 from sync.models import Annotation, Publication, Sync
+from lidia.models import Publication as LidiaPublication
 
 logger = logging.getLogger(__name__)
 
@@ -111,3 +113,25 @@ def sync() -> None:
         logger.info("Sync successful")
     else:
         logger.info("Local library up to date; not syncing")
+
+
+def populate():
+    for pub in Publication.objects.iterator():
+        zotero_id = pub.zotero_id
+        attachment_url = pub.content.get('links', {}).get('attachment', {}).get('href', '')
+        attachment_id = attachment_url.rstrip('/').split('/')[-1]
+        data = pub.content.get('data', {})
+        defaults = {
+            'attachment_id': attachment_id,
+            'title': data.get('title', ''),
+            }
+        publication, created = LidiaPublication.objects.get_or_create(
+            zotero_id=zotero_id,
+            # Only set fields if a new object is created
+            defaults=defaults
+        )
+        if not created:
+            publication.attachment_id = attachment_id
+            publication.title = title
+            # Just save all fields without checking for changes
+            publication.save()
