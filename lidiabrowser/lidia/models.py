@@ -7,7 +7,7 @@ class Publication(models.Model):
     title = models.CharField(max_length=255, null=True)
 
     def __str__(self):
-        return self.title
+        return self.title or self.zotero_id
 
 
 class Language(models.Model):
@@ -15,7 +15,7 @@ class Language(models.Model):
     name = models.CharField(max_length=100, null=True)
 
     def __str__(self):
-        return self.name
+        return self.name or self.code
 
 
 class Annotation(models.Model):
@@ -28,20 +28,20 @@ class Annotation(models.Model):
         ("supports", "Supports"),
     ]
 
-    zotero_id = models.CharField(max_length=100, unique=True)
-    parent_attachment = models.ForeignKey(Publication, models.CASCADE, blank=True, null=True, to_field='attachment_id')
-    textselection = models.TextField() # Limit how much text we store, or limit displayed text?
-    argname = models.CharField(max_length=100, unique=True) # Should we enforce unique here or allow and warn?
-    arglang = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
-    description = models.TextField()
+    zotero_id = models.CharField(max_length=100, unique=True, null=False)
+    parent_attachment = models.ForeignKey(Publication, on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
+    textselection = models.TextField(default='') # Limit how much text we store, or limit displayed text?
+    argname = models.CharField(max_length=100, unique=True, null=True) # Should we enforce unique here or allow and warn?
+    arglang = models.ForeignKey(Language, on_delete=models.SET_NULL, to_field='code', null=True)
+    description = models.TextField(default='')
     argcont = models.BooleanField(null=True)
     page_start = models.IntegerField(null=True) # Should be integers, but...
     page_end = models.IntegerField(null=True)
-    relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES)
-    relation_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+    relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES, default='')
+    relation_to = models.ForeignKey('self', to_field='zotero_id', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.argname
+        return self.argname or self.zotero_id
 
 
 class ArticleTerm(models.Model):
