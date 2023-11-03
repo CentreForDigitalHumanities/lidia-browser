@@ -163,8 +163,7 @@ def populate():
                 'textselection': data.get('annotationText', ''),
                 # Publication should exist so use foreign key column directly
                 'parent_attachment_id': data.get('parentItem'),
-                # "argname" fallback NULL for unique constraint
-                'argname': anno.get('argname', None) or None,
+                'argname': anno.get('argname', '') or '',
                 # "arglang" can be an empty string instead of 'unspecified'
                 'arglang_id': anno.get('arglang', 'unspecified') or 'unspecified',
                 'description': anno.get('description', ''),

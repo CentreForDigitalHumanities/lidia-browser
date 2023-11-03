@@ -30,13 +30,13 @@ class Annotation(models.Model):
 
     zotero_id = models.CharField(max_length=100, unique=True, null=False)
     parent_attachment = models.ForeignKey(Publication, on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
-    textselection = models.TextField(default='') # Limit how much text we store, or limit displayed text?
-    argname = models.CharField(max_length=100, unique=True, null=True) # Should we enforce unique here or allow and warn?
+    textselection = models.TextField(default='')
+    argname = models.CharField(max_length=100, default='')
     arglang = models.ForeignKey(Language, on_delete=models.SET_NULL, to_field='code', null=True)
     description = models.TextField(default='')
     argcont = models.BooleanField(null=True)
-    page_start = models.IntegerField(null=True) # Should be integers, but...
-    page_end = models.IntegerField(null=True)
+    page_start = models.CharField(max_length=16, null=True)
+    page_end = models.CharField(max_length=16, null=True)
     relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES, default='')
     relation_to = models.ForeignKey('self', to_field='zotero_id', on_delete=models.SET_NULL, null=True)
 
