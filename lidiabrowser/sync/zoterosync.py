@@ -8,7 +8,7 @@ import yaml
 from sync.models import Annotation, Publication, Sync
 from lidia.models import Publication as LidiaPublication
 from lidia.models import Annotation as LidiaAnnotation
-from lidia.models import Language, ArticleTerm, LidiaTerm, Category
+from lidia.models import Language #, ArticleTerm, LidiaTerm, Category
 
 logger = logging.getLogger(__name__)
 
