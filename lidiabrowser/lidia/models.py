@@ -28,15 +28,15 @@ class Annotation(models.Model):
         ("supports", "Supports"),
     ]
 
-    zotero_id = models.CharField(max_length=100, unique=True, null=False)
-    parent_attachment = models.ForeignKey(Publication, on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
-    textselection = models.TextField(default='')
-    argname = models.CharField(max_length=100, default='')
-    arglang = models.ForeignKey(Language, on_delete=models.SET_NULL, to_field='code', null=True)
+    zotero_id = models.CharField(verbose_name="Zotero ID", max_length=100, unique=True, null=False)
+    parent_attachment = models.ForeignKey(Publication, verbose_name="publication", on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
+    textselection = models.TextField(verbose_name="quoted text", default='')
+    argname = models.CharField(verbose_name="argument name", max_length=100, default='')
+    arglang = models.ForeignKey(Language, verbose_name="subject language", on_delete=models.SET_NULL, to_field='code', null=True)
     description = models.TextField(default='')
-    argcont = models.BooleanField(null=True)
-    page_start = models.CharField(max_length=16, null=True)
-    page_end = models.CharField(max_length=16, null=True)
+    argcont = models.BooleanField(verbose_name="continuation", help_text="True if the annotation is a continuation of the previous argument", null=True)
+    page_start = models.CharField(verbose_name="start page", max_length=16, null=True)
+    page_end = models.CharField(verbose_name="end page", max_length=16, null=True)
     relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES, default='')
     relation_to = models.ForeignKey('self', to_field='zotero_id', on_delete=models.SET_NULL, null=True)
 

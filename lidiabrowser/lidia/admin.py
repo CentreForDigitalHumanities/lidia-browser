@@ -4,11 +4,12 @@ from .models import Annotation, Publication
 
 
 class AnnotationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["zotero_id", "parent_attachment", "argname", "arglang", "page_start"]
+    list_filter = ["parent_attachment", "arglang"]
 
 
 class PublicationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["zotero_id", "attachment_id", "title"]
 
 
 admin.site.register(Annotation, AnnotationAdmin)
