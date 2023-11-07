@@ -109,7 +109,7 @@ def sync() -> None:
         logger.info("Local library not present.")
     else:
         logger.info(f"Local library version: {local_library_version}.")
-    if True or zotero_library_version > local_library_version:
+    if zotero_library_version > local_library_version:
         sync_publications(zot, since=local_library_version)
         sync_annotations(zot, since=local_library_version)
         update_local_library_version(zot, zotero_library_version)
