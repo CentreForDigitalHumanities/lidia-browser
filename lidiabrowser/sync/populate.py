@@ -89,3 +89,15 @@ def populate():
                 for field, value in defaults.items():
                     setattr(lidia_annotation, field, value)
                 lidia_annotation.save()
+
+    remaining_placeholders = LidiaAnnotation.objects.filter(
+            zotero_annotation__isnull=True
+    )
+    count = remaining_placeholders.count()
+    if count:
+        logger.warning(
+            f"There were references to {count} non-existing annotation(s)."
+        )
+        # TODO: include a warning in the annotations having invalid references
+        remaining_placeholders.delete()
+
