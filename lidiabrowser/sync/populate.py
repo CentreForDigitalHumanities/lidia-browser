@@ -66,7 +66,7 @@ def populate():
                 relation_to_obj, _ = LidiaAnnotation.objects.get_or_create(lidia_id=relation_to_id)
 
             defaults = {
-                'zotero_id': zotero_id,
+                'zotero_annotation': annotation,
                 'textselection': data.get('annotationText', ''),
                 # Publication should exist so use foreign key column directly
                 'parent_attachment_id': data.get('parentItem'),

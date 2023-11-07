@@ -7,11 +7,10 @@ from .models import (
     TermGroup,
     Category,
 )
-    
 
 
 class AnnotationAdmin(admin.ModelAdmin):
-    list_display = ["sort_index", "zotero_id", "lidia_id", "parent_attachment", "argname", "arglang", "page_start"]
+    list_display = ["zotero_annotation", "lidia_id", "parent_attachment", "argname", "arglang", "page_start"]
     list_filter = ["parent_attachment", "arglang"]
     ordering = ("parent_attachment", "sort_index")
 

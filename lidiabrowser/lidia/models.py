@@ -2,6 +2,8 @@ from django.db import models
 
 import iso639
 
+import sync.models as syncmodels
+
 
 class Publication(models.Model):
     zotero_id = models.CharField(max_length=100, unique=True)
@@ -42,8 +44,8 @@ class Annotation(models.Model):
     ]
     
     lidia_id = models.CharField(verbose_name="LIDIA ID", max_length=100, unique=True, null=True)
-    # Allow nullable zotero_id to facilitate placeholders
-    zotero_id = models.CharField(verbose_name="Zotero ID", max_length=100, unique=True, null=True)
+    # Allow nullable zotero_annotation to facilitate placeholders
+    zotero_annotation = models.OneToOneField(syncmodels.Annotation, verbose_name="Zotero annotation", on_delete=models.CASCADE, null=True, to_field="zotero_id")
     parent_attachment = models.ForeignKey(Publication, verbose_name="publication", on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
     textselection = models.TextField(verbose_name="quoted text", default='')
     sort_index = models.CharField(max_length=100, help_text="Index to keep order of annotation in document", default="")
@@ -57,7 +59,7 @@ class Annotation(models.Model):
     relation_to = models.ForeignKey('self', to_field='lidia_id', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.argname or self.lidia_id or self.zotero_id or "(no name or ID)"
+        return self.argname or self.lidia_id or self.zotero_annotation or "(no name or ID)"
 
 
 class ArticleTerm(models.Model):
@@ -95,11 +97,11 @@ class TermGroup(models.Model):
         ('other', 'Other'),
     ]
 
-    annotation_id = models.ForeignKey(Annotation, models.CASCADE, null=True, to_field='zotero_id')
+    annotation = models.ForeignKey(Annotation, models.CASCADE, null=True)
     termtype = models.CharField(max_length=11, choices=TERMTYPE_CHOICES)
     articleterm = models.ForeignKey(ArticleTerm, models.CASCADE, null=True)
     category = models.ForeignKey(Category, models.CASCADE, null=True)
     lidiaterm = models.ForeignKey(LidiaTerm, models.CASCADE, null=True)
 
     def __str__(self):
-        return f"{self.annotation_id}: {self.lidiaterm}"
+        return f"{self.annotation}: {self.lidiaterm}"
