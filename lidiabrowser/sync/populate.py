@@ -12,6 +12,9 @@ from lidia.models import Language  #, ArticleTerm, LidiaTerm, Category
 logger = logging.getLogger(__name__)
 
 
+LIDIAPREFIX = "~~~~LIDIA~~~~"
+
+
 def populate():
     for pub in syncmodels.Publication.objects.iterator():
         with transaction.atomic():
@@ -39,7 +42,12 @@ def populate():
             zotero_id = annotation.zotero_id
             data = annotation.content.get('data', {})
             annotation_comment = data.get('annotationComment', '')
-            yamlstr = annotation_comment.removeprefix('~~~~LIDIA~~~~')
+            if not annotation_comment.startswith(LIDIAPREFIX):
+                logger.info(
+                    f"Ignoring annotation with key {zotero_id}: not a LIDIA annotation"
+                )
+                continue
+            yamlstr = annotation_comment.removeprefix(LIDIAPREFIX)
             try:
                 anno = yaml.safe_load(yamlstr)
             except yaml.YAMLError as e:
