@@ -39,16 +39,16 @@ def populate():
             zotero_id = annotation.zotero_id
             data = annotation.content.get('data', {})
             annotation_comment = data.get('annotationComment', '')
-            anno = annotation_comment.removeprefix('~~~~LIDIA~~~~')
+            yamlstr = annotation_comment.removeprefix('~~~~LIDIA~~~~')
             try:
-                anno = yaml.safe_load(anno)
+                anno = yaml.safe_load(yamlstr)
             except yaml.YAMLError as e:
                 logger.error(f"YAMLError: {e}")
                 continue
 
             arglang_obj, _ = Language.objects.get_or_create(code=anno.get('arglang', 'unspecified'))
 
-            relation_to_id = anno.get('relation_to') or None
+            relation_to_id = anno.get('relationTo') or None
             if relation_to_id:
                 # Create a placeholder annotation to reference
                 relation_to_obj, _ = LidiaAnnotation.objects.get_or_create(zotero_id=relation_to_id)
@@ -62,9 +62,9 @@ def populate():
                 'arglang_id': anno.get('arglang', 'unspecified') or 'unspecified',
                 'description': anno.get('description', ''),
                 'argcont': anno.get('argcont', None) or None,
-                'page_start': anno.get('page_start', None) or None,
-                'page_end': anno.get('page_end', None) or None,
-                'relation_type': anno.get('relation_type', '') or '',
+                'page_start': anno.get('pagestart', None) or None,
+                'page_end': anno.get('pageend', None) or None,
+                'relation_type': anno.get('relationType', '') or '',
                 'relation_to_id': relation_to_id,
                 }
 
