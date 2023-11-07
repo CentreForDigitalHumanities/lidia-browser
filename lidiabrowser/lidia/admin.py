@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Annotation, Publication
+from .models import (
+    Annotation,
+    Publication,
+    Language,
+    TermGroup,
+    Category,
+)
+    
 
 
 class AnnotationAdmin(admin.ModelAdmin):
@@ -14,3 +21,6 @@ class PublicationAdmin(admin.ModelAdmin):
 
 admin.site.register(Annotation, AnnotationAdmin)
 admin.site.register(Publication, PublicationAdmin)
+admin.site.register(Language)
+admin.site.register(TermGroup)
+admin.site.register(Category)
