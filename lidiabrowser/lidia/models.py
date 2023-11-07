@@ -1,5 +1,7 @@
 from django.db import models
 
+import iso639
+
 
 class Publication(models.Model):
     zotero_id = models.CharField(max_length=100, unique=True)
@@ -16,6 +18,17 @@ class Language(models.Model):
 
     def __str__(self):
         return self.name or self.code
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            try:
+                self.name = iso639.Lang(self.code).name
+            except (
+                iso639.exceptions.DeprecatedLanguageValue,
+                iso639.exceptions.InvalidLanguageValue
+            ):
+                pass
+        return super().save(*args, **kwargs)
 
 
 class Annotation(models.Model):
