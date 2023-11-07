@@ -128,7 +128,7 @@ def populate():
             defaults = {
                 'attachment_id': attachment_id,
                 'title': data.get('title', ''),
-                }
+            }
             publication, created = LidiaPublication.objects.get_or_create(
                 zotero_id=zotero_id,
                 # Only set fields if a new object is created
@@ -136,7 +136,7 @@ def populate():
             )
             if not created:
                 publication.attachment_id = attachment_id
-                publication.title = data.get('title', ''),
+                publication.title = data.get('title', '')
                 # Just save all fields without checking which fields need updating
                 publication.save()
 
