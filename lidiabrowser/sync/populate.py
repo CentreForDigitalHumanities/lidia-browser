@@ -54,14 +54,18 @@ def populate():
                 logger.error(f"YAMLError: {e}")
                 continue
 
+            lidia_id = anno.get("lidiaId") or zotero_id
+
             arglang_obj, _ = Language.objects.get_or_create(code=anno.get('arglang', 'unspecified'))
 
             relation_to_id = anno.get('relationTo') or None
             if relation_to_id:
+                print("Relation to: " + relation_to_id)
                 # Create a placeholder annotation to reference
-                relation_to_obj, _ = LidiaAnnotation.objects.get_or_create(zotero_id=relation_to_id)
+                relation_to_obj, _ = LidiaAnnotation.objects.get_or_create(lidia_id=relation_to_id)
 
             defaults = {
+                'zotero_id': zotero_id,
                 'textselection': data.get('annotationText', ''),
                 # Publication should exist so use foreign key column directly
                 'parent_attachment_id': data.get('parentItem'),
@@ -74,10 +78,10 @@ def populate():
                 'page_end': anno.get('pageend', None) or None,
                 'relation_type': anno.get('relationType', '') or '',
                 'relation_to_id': relation_to_id,
-                }
+            }
 
             lidia_annotation, created = LidiaAnnotation.objects.get_or_create(
-                zotero_id=zotero_id,
+                lidia_id=lidia_id,
                 defaults=defaults
             )
             if not created:

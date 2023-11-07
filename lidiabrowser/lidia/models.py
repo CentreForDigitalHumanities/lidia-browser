@@ -27,8 +27,10 @@ class Annotation(models.Model):
         ("specialcase", "Is a special case of"),
         ("supports", "Supports"),
     ]
-
-    zotero_id = models.CharField(verbose_name="Zotero ID", max_length=100, unique=True, null=False)
+    
+    lidia_id = models.CharField(verbose_name="LIDIA ID", max_length=100, unique=True, null=True)
+    # Allow nullable zotero_id to facilitate placeholders
+    zotero_id = models.CharField(verbose_name="Zotero ID", max_length=100, unique=True, null=True)
     parent_attachment = models.ForeignKey(Publication, verbose_name="publication", on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
     textselection = models.TextField(verbose_name="quoted text", default='')
     argname = models.CharField(verbose_name="argument name", max_length=100, default='')
@@ -38,10 +40,10 @@ class Annotation(models.Model):
     page_start = models.CharField(verbose_name="start page", max_length=16, null=True)
     page_end = models.CharField(verbose_name="end page", max_length=16, null=True)
     relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES, default='')
-    relation_to = models.ForeignKey('self', to_field='zotero_id', on_delete=models.SET_NULL, null=True)
+    relation_to = models.ForeignKey('self', to_field='lidia_id', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.argname or self.zotero_id
+        return self.argname or self.lidia_id or self.zotero_id or "(no name or ID)"
 
 
 class ArticleTerm(models.Model):
