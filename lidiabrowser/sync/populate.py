@@ -70,6 +70,7 @@ def populate():
                 'textselection': data.get('annotationText', ''),
                 # Publication should exist so use foreign key column directly
                 'parent_attachment_id': data.get('parentItem'),
+                'sort_index': data.get("annotationSortIndex"),
                 'argname': anno.get('argname', '') or '',
                 'arglang_id': arglang_id,
                 'description': anno.get('description', ''),

@@ -46,6 +46,7 @@ class Annotation(models.Model):
     zotero_id = models.CharField(verbose_name="Zotero ID", max_length=100, unique=True, null=True)
     parent_attachment = models.ForeignKey(Publication, verbose_name="publication", on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
     textselection = models.TextField(verbose_name="quoted text", default='')
+    sort_index = models.CharField(max_length=100, help_text="Index to keep order of annotation in document", default="")
     argname = models.CharField(verbose_name="argument name", max_length=100, default='')
     arglang = models.ForeignKey(Language, verbose_name="subject language", on_delete=models.SET_NULL, to_field='code', null=True)
     description = models.TextField(default='')
