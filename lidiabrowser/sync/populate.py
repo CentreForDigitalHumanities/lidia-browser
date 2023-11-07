@@ -56,7 +56,8 @@ def populate():
 
             lidia_id = anno.get("lidiaId") or zotero_id
 
-            arglang_obj, _ = Language.objects.get_or_create(code=anno.get('arglang', 'unspecified'))
+            arglang_id = anno.get('arglang', 'unspecified') or 'unspecified'
+            Language.objects.get_or_create(code=arglang_id)
 
             relation_to_id = anno.get('relationTo') or None
             if relation_to_id:
@@ -70,8 +71,7 @@ def populate():
                 # Publication should exist so use foreign key column directly
                 'parent_attachment_id': data.get('parentItem'),
                 'argname': anno.get('argname', '') or '',
-                # "arglang" can be an empty string instead of 'unspecified'
-                'arglang_id': anno.get('arglang', 'unspecified') or 'unspecified',
+                'arglang_id': arglang_id,
                 'description': anno.get('description', ''),
                 'argcont': anno.get('argcont', None) or None,
                 'page_start': anno.get('pagestart', None) or None,
