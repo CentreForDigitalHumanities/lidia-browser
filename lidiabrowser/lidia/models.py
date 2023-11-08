@@ -33,7 +33,16 @@ class Language(models.Model):
         return super().save(*args, **kwargs)
 
 
-class Annotation(models.Model):
+class BaseAnnotation(models.Model):
+    lidia_id = models.CharField(verbose_name="LIDIA ID", max_length=100, unique=True, null=True)
+    # Allow nullable zotero_annotation to facilitate placeholders
+    zotero_annotation = models.OneToOneField(syncmodels.Annotation, verbose_name="Zotero annotation", on_delete=models.CASCADE, null=True, to_field="zotero_id")
+    parent_attachment = models.ForeignKey(Publication, verbose_name="publication", on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
+    textselection = models.TextField(verbose_name="quoted text", default='')
+    sort_index = models.CharField(max_length=100, help_text="Index to keep order of annotation in document", default="")
+
+
+class Annotation(BaseAnnotation):
     RELATION_TYPE_CHOICES = [
         ("", "None"),
         ("contradicts", "Contradicts"),
@@ -43,12 +52,6 @@ class Annotation(models.Model):
         ("supports", "Supports"),
     ]
     
-    lidia_id = models.CharField(verbose_name="LIDIA ID", max_length=100, unique=True, null=True)
-    # Allow nullable zotero_annotation to facilitate placeholders
-    zotero_annotation = models.OneToOneField(syncmodels.Annotation, verbose_name="Zotero annotation", on_delete=models.CASCADE, null=True, to_field="zotero_id")
-    parent_attachment = models.ForeignKey(Publication, verbose_name="publication", on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
-    textselection = models.TextField(verbose_name="quoted text", default='')
-    sort_index = models.CharField(max_length=100, help_text="Index to keep order of annotation in document", default="")
     argname = models.CharField(verbose_name="argument name", max_length=100, default='')
     arglang = models.ForeignKey(Language, verbose_name="subject language", on_delete=models.SET_NULL, to_field='code', null=True)
     description = models.TextField(default='')
@@ -56,10 +59,20 @@ class Annotation(models.Model):
     page_start = models.CharField(verbose_name="start page", max_length=16, null=True)
     page_end = models.CharField(verbose_name="end page", max_length=16, null=True)
     relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES, default='')
-    relation_to = models.ForeignKey('self', to_field='lidia_id', on_delete=models.SET_NULL, null=True)
+    relation_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.argname or self.lidia_id or self.zotero_annotation or "(no name or ID)"
+
+
+class ContinuationAnnotation(BaseAnnotation):
+    start_annotation = models.ForeignKey(Annotation, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        if self.start_annotation:
+            return f"(continuation of {self.start_annotation})"
+        else:
+            return "(orphaned continuation annotation)"
 
 
 class ArticleTerm(models.Model):
@@ -76,7 +89,10 @@ class LidiaTerm(models.Model):
     ]
 
     vocab = models.CharField(max_length=6, choices=VOCAB_CHOICES)
-    term = models.CharField(max_length=100, unique=True)
+    term = models.CharField(max_length=100)
+
+    class Meta:
+        unique_together = [['vocab', 'term']]
 
     def __str__(self):
         return self.term
@@ -91,17 +107,20 @@ class Category(models.Model):
 
 class TermGroup(models.Model):
     TERMTYPE_CHOICES = [
-        ('', 'Undefined'),
         ('definiendum', 'Definiendum'),
         ('definiens', 'Definiens'),
         ('other', 'Other'),
     ]
 
     annotation = models.ForeignKey(Annotation, models.CASCADE, null=True)
-    termtype = models.CharField(max_length=11, choices=TERMTYPE_CHOICES)
+    index = models.IntegerField(null=True)
+    termtype = models.CharField(max_length=11, choices=TERMTYPE_CHOICES, null=True)
     articleterm = models.ForeignKey(ArticleTerm, models.CASCADE, null=True)
     category = models.ForeignKey(Category, models.CASCADE, null=True)
     lidiaterm = models.ForeignKey(LidiaTerm, models.CASCADE, null=True)
 
+    class Meta:
+        unique_together = [['annotation', 'index']]
+
     def __str__(self):
-        return f"{self.annotation}: {self.lidiaterm}"
+        return f"{self.annotation}-{self.index}: {self.lidiaterm}"

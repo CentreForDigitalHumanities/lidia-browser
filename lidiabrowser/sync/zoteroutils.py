@@ -1,7 +1,6 @@
 """Utilities related to the Zotero API"""
 
 
-from typing import Optional
 
 
 def get_attachment_url(publicationdata: dict) -> str:
