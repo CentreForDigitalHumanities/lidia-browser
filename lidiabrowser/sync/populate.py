@@ -173,7 +173,6 @@ def populate():
                     'argname': anno.get('argname', '') or '',
                     'arglang_id': arglang_id,
                     'description': anno.get('description', ''),
-                    'argcont': anno.get('argcont', None) or None,
                     'page_start': anno.get('pagestart', None) or None,
                     'page_end': anno.get('pageend', None) or None,
                     'relation_type': anno.get('relationType', '') or '',
