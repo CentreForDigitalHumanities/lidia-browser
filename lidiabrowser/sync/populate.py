@@ -166,7 +166,6 @@ def populate():
                 relation_to_id = anno.get('relationTo') or None
                 relation_to_obj = None
                 if relation_to_id:
-                    print("Relation to: " + relation_to_id)
                     # Create a placeholder annotation to reference
                     relation_to_obj, _ = LidiaAnnotation.objects.get_or_create(lidia_id=relation_to_id)
 
