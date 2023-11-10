@@ -6,9 +6,17 @@ import logging
 
 import sync.models as syncmodels
 from sync.zoteroutils import get_attachment_url, get_attachment_id_from_url
-from lidia.models import ArticleTerm, BaseAnnotation, Category, ContinuationAnnotation, LidiaTerm, Publication as LidiaPublication, TermGroup
-from lidia.models import Annotation as LidiaAnnotation
-from lidia.models import Language  #, ArticleTerm, LidiaTerm, Category
+from lidia.models import (
+    Annotation,
+    ArticleTerm,
+    BaseAnnotation,
+    Category,
+    ContinuationAnnotation,
+    Language,
+    LidiaTerm,
+    Publication,
+    TermGroup,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +77,7 @@ def create_lidiaterm(lexiconterm: str, customterm: str) -> Optional[LidiaTerm]:
     return lidiaterm
 
 
-def create_term_group(annotation: LidiaAnnotation, index: int, data: dict) -> TermGroup:
+def create_term_group(annotation: Annotation, index: int, data: dict) -> TermGroup:
     articleterm_str = data.get("articleterm", None) or None
     if articleterm_str:
         articleterm, _ = ArticleTerm.objects.get_or_create(term=articleterm_str)
@@ -116,7 +124,7 @@ def populate():
                 'attachment_id': attachment_id,
                 'title': data.get('title', ''),
             }
-            publication, created = LidiaPublication.objects.get_or_create(
+            publication, created = Publication.objects.get_or_create(
                 zotero_id=zotero_id,
                 # Only set fields if a new object is created
                 defaults=defaults
@@ -154,7 +162,7 @@ def populate():
             }
             argcont = anno.get('argcont')
             if argcont:
-                cont_annotation, created = ContinuationAnnotation.objects.get_or_create(
+                ContinuationAnnotation.objects.get_or_create(
                     lidia_id=lidia_id,
                     defaults=defaults
                 )
@@ -166,7 +174,7 @@ def populate():
                 relation_to_obj = None
                 if relation_to_id:
                     # Create a placeholder annotation to reference
-                    relation_to_obj, _ = LidiaAnnotation.objects.get_or_create(lidia_id=relation_to_id)
+                    relation_to_obj, _ = Annotation.objects.get_or_create(lidia_id=relation_to_id)
 
                 defaults |= {
                     'argname': anno.get('argname', '') or '',
@@ -178,7 +186,7 @@ def populate():
                     'relation_to': relation_to_obj,
                 }
 
-                lidia_annotation, created = LidiaAnnotation.objects.get_or_create(
+                lidia_annotation, created = Annotation.objects.get_or_create(
                     lidia_id=lidia_id,
                     defaults=defaults
                 )
@@ -196,7 +204,7 @@ def populate():
 
     process_continuation_annotations()
 
-    remaining_placeholders = LidiaAnnotation.objects.filter(
+    remaining_placeholders = Annotation.objects.filter(
         zotero_annotation__isnull=True
     )
     count = remaining_placeholders.count()
