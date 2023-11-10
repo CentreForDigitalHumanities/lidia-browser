@@ -27,7 +27,7 @@ def process_continuation_annotations() -> None:
     for annotation in annotations:
         if hasattr(annotation, "annotation"):
             # Object is of Annotation model (first annotation)
-            current_first_annotation = annotation.annotation  # noqa
+            current_first_annotation = annotation.annotation  # type: ignore
             current_parent = annotation.parent_attachment
         elif hasattr(annotation, "continuationannotation"):
             # Object is of ContinuationAnnotation model
@@ -42,7 +42,7 @@ def process_continuation_annotations() -> None:
                 )
                 to_be_deleted.append(annotation)
                 continue
-            ca = annotation.continuationannotation  # noqa
+            ca = annotation.continuationannotation  # type: ignore
             assert isinstance(ca, ContinuationAnnotation)
             ca.start_annotation = current_first_annotation
             ca.save()
@@ -104,7 +104,6 @@ def create_term_group(annotation: LidiaAnnotation, index: int, data: dict) -> Te
         termgroup.save()
 
     return termgroup
-
 
 def populate():
     for pub in syncmodels.Publication.objects.iterator():
