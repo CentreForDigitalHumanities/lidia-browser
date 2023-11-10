@@ -31,6 +31,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
+          pip install setuptools  # requirement for iso639-lang on Python>=3.12
       - name: Lint with ruff
         run: |
           pip install ruff

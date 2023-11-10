@@ -1,14 +1,9 @@
 from django.conf import settings
-from django.db import transaction
 
 import logging
 from pyzotero import zotero
-import yaml
 
 from sync.models import Annotation, Publication, Sync
-from lidia.models import Publication as LidiaPublication
-from lidia.models import Annotation as LidiaAnnotation
-from lidia.models import Language #, ArticleTerm, LidiaTerm, Category
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +104,7 @@ def sync() -> None:
         logger.info("Local library not present.")
     else:
         logger.info(f"Local library version: {local_library_version}.")
-    if True or zotero_library_version > local_library_version:
+    if zotero_library_version > local_library_version:
         sync_publications(zot, since=local_library_version)
         sync_annotations(zot, since=local_library_version)
         update_local_library_version(zot, zotero_library_version)
@@ -118,67 +113,3 @@ def sync() -> None:
         logger.info("Local library up to date; not syncing")
 
 
-def populate():
-    for pub in Publication.objects.iterator():
-        with transaction.atomic():
-            zotero_id = pub.zotero_id
-            attachment_url = pub.content.get('links', {}).get('attachment', {}).get('href', '')
-            attachment_id = attachment_url.rstrip('/').split('/')[-1]
-            data = pub.content.get('data', {})
-            defaults = {
-                'attachment_id': attachment_id,
-                'title': data.get('title', ''),
-                }
-            publication, created = LidiaPublication.objects.get_or_create(
-                zotero_id=zotero_id,
-                # Only set fields if a new object is created
-                defaults=defaults
-            )
-            if not created:
-                publication.attachment_id = attachment_id
-                publication.title = data.get('title', ''),
-                # Just save all fields without checking which fields need updating
-                publication.save()
-
-    for annotation in Annotation.objects.iterator():
-        with transaction.atomic():
-            zotero_id = annotation.zotero_id
-            data = annotation.content.get('data', {})
-            annotation_comment = data.get('annotationComment', '')
-            anno = annotation_comment.removeprefix('~~~~LIDIA~~~~')
-            try:
-                anno = yaml.safe_load(anno)
-            except yaml.YAMLError as e:
-                logger.error(f"YAMLError: {e}")
-                continue
-
-            arglang_obj, _ = Language.objects.get_or_create(code=anno.get('arglang', 'unspecified'))
-
-            relation_to_id = anno.get('relation_to') or None
-            if relation_to_id:
-                # Create a placeholder annotation to reference
-                relation_to_obj, _ = LidiaAnnotation.objects.get_or_create(zotero_id=relation_to_id)
-
-            defaults = {
-                'textselection': data.get('annotationText', ''),
-                # Publication should exist so use foreign key column directly
-                'parent_attachment_id': data.get('parentItem'),
-                'argname': anno.get('argname', '') or '',
-                # "arglang" can be an empty string instead of 'unspecified'
-                'arglang_id': anno.get('arglang', 'unspecified') or 'unspecified',
-                'description': anno.get('description', ''),
-                'argcont': anno.get('argcont', None) or None,
-                'page_start': anno.get('page_start', None) or None,
-                'page_end': anno.get('page_end', None) or None,
-                'relation_type': anno.get('relation_type', '') or '',
-                'relation_to_id': relation_to_id,
-                }
-
-            lidia_annotation, created = LidiaAnnotation.objects.get_or_create(
-                zotero_id=zotero_id,
-                defaults=defaults
-            )
-            if not created:
-                for field, value in defaults.items():
-                    setattr(lidia_annotation, field, value)
-                lidia_annotation.save()

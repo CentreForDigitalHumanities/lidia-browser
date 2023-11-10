@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from sync.zoterosync import populate
+from sync.populate import populate
 
 
 class Command(BaseCommand):
