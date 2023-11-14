@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Group, Permission, User, UserManager
+from django.contrib.auth.models import Group, Permission, User
 
 ANONYMOUSUSERNAME = "anonymous"
 
