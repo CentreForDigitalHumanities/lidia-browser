@@ -18,26 +18,30 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
+from .autologin import index_view_autologin
+
+
 urlpatterns = [
     path(
-        "password_reset/",
+        "browser/password_reset/",
         auth_views.PasswordResetView.as_view(),
         name="admin_password_reset",
     ),
     path(
-        "password_reset/done/",
+        "browser/password_reset/done/",
         auth_views.PasswordResetDoneView.as_view(),
         name="password_reset_done",
     ),
     path(
-        "reset/<uidb64>/<token>/",
+        "browser/reset/<uidb64>/<token>/",
         auth_views.PasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
     ),
     path(
-        "reset/done/",
+        "browser/reset/done/",
         auth_views.PasswordResetCompleteView.as_view(),
         name="password_reset_complete",
     ),
-    path("", admin.site.urls),
+    path("browser/", admin.site.urls),
+    path("", index_view_autologin, name="index"),
 ]

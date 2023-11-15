@@ -1,12 +1,14 @@
 import pytest
 from django.contrib.auth.models import Group, Permission
-from django.core.management import call_command
+
+from lidiabrowser.init import initiate_groups
 
 
 @pytest.mark.django_db
 class TestInitgroups:
     def test_basic(self):
-        call_command("initgroups")
+        groups = initiate_groups()
+        assert isinstance(groups["view_all"], Group)
         view_all = Group.objects.get(name="view_all")
         viewpublicationpermission = Permission.objects.get_by_natural_key(
             "view_publication", "lidia", "publication"
@@ -15,5 +17,5 @@ class TestInitgroups:
 
     def test_double(self):
         # Calling twice on the same database should be fine
-        call_command("initgroups")
-        call_command("initgroups")
+        initiate_groups()
+        initiate_groups()
