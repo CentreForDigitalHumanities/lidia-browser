@@ -9,7 +9,7 @@ Install the dependencies:
 
     pip install -r requirements.txt
 
-Create a file `lidiabrowser/lidiabrowser/.env` with your Zotero library and authentication details:
+Create a file `.env` in the repository root with your Zotero library and authentication details:
 
 ```sh
 ZOTERO_LIBRARY_ID=12345
