@@ -63,7 +63,7 @@ ROOT_URLCONF = "lidiabrowser.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["lidiabrowser/templates"],
+        "DIRS": [BASE_DIR / "lidiabrowser/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
