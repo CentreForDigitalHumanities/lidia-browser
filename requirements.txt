@@ -8,7 +8,7 @@ asgiref==3.7.2
     # via django
 bibtexparser==1.4.1
     # via pyzotero
-certifi==2023.7.22
+certifi==2023.11.17
     # via requests
 charset-normalizer==3.3.2
     # via requests
@@ -20,7 +20,7 @@ feedparser==6.0.10
     # via pyzotero
 idna==3.4
     # via requests
-iso639-lang==2.1.0
+iso639-lang==2.2.1
     # via -r requirements.in
 pyparsing==3.1.1
     # via bibtexparser
@@ -38,5 +38,5 @@ sgmllib3k==1.0.0
     # via feedparser
 sqlparse==0.4.4
     # via django
-urllib3==2.0.7
+urllib3==2.1.0
     # via requests
