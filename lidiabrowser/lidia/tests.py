@@ -2,6 +2,7 @@ import pytest
 from django.contrib.auth.models import Group, Permission
 
 from lidiabrowser.init import initiate_groups
+import lidia.models as models
 
 
 @pytest.mark.django_db
@@ -19,3 +20,21 @@ class TestInitgroups:
         # Calling twice on the same database should be fine
         initiate_groups()
         initiate_groups()
+
+
+@pytest.mark.django_db
+class TestLanguage:
+    def test_save(self):
+        language = models.Language(code="nld")
+        language.save()
+        assert language.name == "Dutch"
+
+    def test_save_emptylanguage(self):
+        language = models.Language(code="")
+        language.save()
+        assert not language.name
+
+    def test_save_nonexistinglanguage(self):
+        language = models.Language(code="nonexisting")
+        language.save()
+        assert not language.name

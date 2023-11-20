@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib import admin
 
 import iso639
 
@@ -59,9 +60,20 @@ class Annotation(BaseAnnotation):
     page_end = models.CharField(verbose_name="end page", max_length=16, null=True)
     relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES, default='')
     relation_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+    termgroups: models.Manager["TermGroup"]
 
     def __str__(self):
         return self.argname or self.lidia_id or self.zotero_annotation or "(no name or ID)"
+
+    @property
+    @admin.display(ordering="page_start")
+    def page_range(self):
+        return f"{self.page_start}–{self.page_end}"
+
+    @property
+    @admin.display(description="Terms")
+    def summary_of_term_groups(self):
+        return ", ".join([str(x) for x in self.termgroups.all()])
 
 
 class ContinuationAnnotation(BaseAnnotation):
@@ -75,7 +87,7 @@ class ContinuationAnnotation(BaseAnnotation):
 
 
 class ArticleTerm(models.Model):
-    term = models.CharField(max_length=100, unique=True)
+    term = models.CharField("article term", max_length=100, unique=True)
 
     def __str__(self):
         return self.term
@@ -84,17 +96,17 @@ class ArticleTerm(models.Model):
 class LidiaTerm(models.Model):
     VOCAB_CHOICES = [
         ('lol', 'Lexicon of Linguistics'),
-        ('custom', 'Custom'),
+        ('custom', 'custom'),
     ]
 
-    vocab = models.CharField(max_length=6, choices=VOCAB_CHOICES)
-    term = models.CharField(max_length=100)
+    vocab = models.CharField("vocabulary", max_length=6, choices=VOCAB_CHOICES)
+    term = models.CharField("LIDIA term", max_length=100)
 
     class Meta:
         unique_together = [['vocab', 'term']]
 
     def __str__(self):
-        return self.term
+        return f"{self.term} ({self.get_vocab_display()})"
 
 
 class Category(models.Model):
@@ -102,6 +114,9 @@ class Category(models.Model):
 
     def __str__(self):
         return self.category
+
+    class Meta:
+        verbose_name_plural = "categories"
 
 
 class TermGroup(models.Model):
@@ -111,15 +126,16 @@ class TermGroup(models.Model):
         ('other', 'Other'),
     ]
 
-    annotation = models.ForeignKey(Annotation, models.CASCADE, null=True)
+    annotation = models.ForeignKey(Annotation, models.CASCADE, null=True, related_name="termgroups")
     index = models.IntegerField(null=True)
-    termtype = models.CharField(max_length=11, choices=TERMTYPE_CHOICES, null=True)
-    articleterm = models.ForeignKey(ArticleTerm, models.CASCADE, null=True)
+    termtype = models.CharField("term type", max_length=11, choices=TERMTYPE_CHOICES, null=True)
+    articleterm = models.ForeignKey(ArticleTerm, models.CASCADE, verbose_name="article term", help_text="Term that was used in the resource", null=True)
     category = models.ForeignKey(Category, models.CASCADE, null=True)
-    lidiaterm = models.ForeignKey(LidiaTerm, models.CASCADE, null=True)
+    lidiaterm = models.ForeignKey(LidiaTerm, models.CASCADE, null=True, verbose_name="LIDIA term")
 
     class Meta:
         unique_together = [['annotation', 'index']]
 
     def __str__(self):
-        return f"{self.annotation}-{self.index}: {self.lidiaterm}"
+        lidiaterm = self.lidiaterm.term if self.lidiaterm else None
+        return f"{self.articleterm}/{lidiaterm}"
