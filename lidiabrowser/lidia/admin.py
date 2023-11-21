@@ -75,6 +75,7 @@ class AnnotationAdmin(admin.ModelAdmin):
             }
         )
     ]
+    readonly_fields = ["page_range"]  # Necessary because this is a callable
 
     @admin.display(
         ordering="argname",

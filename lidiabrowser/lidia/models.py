@@ -45,12 +45,12 @@ class BaseAnnotation(models.Model):
 
 class Annotation(BaseAnnotation):
     RELATION_TYPE_CHOICES = [
-        ("", "None"),
-        ("contradicts", "Contradicts"),
-        ("generalizes", "Generalizes"),
-        ("invalidates", "Invalidates"),
-        ("specialcase", "Is a special case of"),
-        ("supports", "Supports"),
+        ("", "none"),
+        ("contradicts", "contradicts"),
+        ("generalizes", "generalizes"),
+        ("invalidates", "invalidates"),
+        ("specialcase", "is a special case of"),
+        ("supports", "supports"),
     ]
     
     argname = models.CharField(verbose_name="argument name", max_length=100, default='')
