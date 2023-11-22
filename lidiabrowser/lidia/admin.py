@@ -82,6 +82,7 @@ class AnnotationAdmin(admin.ModelAdmin):
         "page_range_in_pdf",
         "full_quotation"
     ]  # Necessary for callables
+    change_form_template = "lidia/change_form_annotation.html"
 
     @admin.display(
         ordering="argname",
@@ -123,7 +124,8 @@ class AnnotationAdmin(admin.ModelAdmin):
 
 
 class PublicationAdmin(admin.ModelAdmin):
-    list_display = ["zotero_id", "attachment_id", "title"]
+    list_display = ["zotero_publication", "attachment_id", "title"]
+    change_form_template = "lidia/change_form_publication.html"
 
 
 class LidiaTermAdmin(admin.ModelAdmin):

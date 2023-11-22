@@ -113,6 +113,7 @@ def create_term_group(annotation: Annotation, index: int, data: dict) -> TermGro
 
     return termgroup
 
+
 def populate():
     for pub in syncmodels.Publication.objects.iterator():
         with transaction.atomic():
@@ -125,7 +126,7 @@ def populate():
                 'title': data.get('title', ''),
             }
             publication, created = Publication.objects.get_or_create(
-                zotero_id=zotero_id,
+                zotero_publication_id=zotero_id,
                 # Only set fields if a new object is created
                 defaults=defaults
             )

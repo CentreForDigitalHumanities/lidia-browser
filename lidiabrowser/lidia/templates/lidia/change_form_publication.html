@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block object-tools-items %}
+{{ block.super }}
+    <li>
+        <a href="{{ original.zotero_publication.zotero_url }}" class="zoterolink">{% translate "View on Zotero.org" %}</a>
+    </li>
+{% endblock %}

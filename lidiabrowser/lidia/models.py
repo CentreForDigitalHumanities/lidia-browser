@@ -8,12 +8,12 @@ import sync.models as syncmodels
 
 
 class Publication(models.Model):
-    zotero_id = models.CharField(max_length=100, unique=True)
+    zotero_publication = models.OneToOneField(syncmodels.Publication, verbose_name="Zotero publication", on_delete=models.CASCADE, to_field="zotero_id", null=True)
     attachment_id = models.CharField(max_length=16, unique=True, null=True)
     title = models.CharField(max_length=255, null=True)
 
     def __str__(self):
-        return self.title or self.zotero_id
+        return self.title or self.zotero_annotation
 
 
 class Language(models.Model):
