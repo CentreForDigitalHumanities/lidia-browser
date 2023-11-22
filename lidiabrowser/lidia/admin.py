@@ -33,7 +33,7 @@ class TermGroupInline(admin.TabularInline):
 
 
 class AnnotationAdmin(admin.ModelAdmin):
-    list_display = ["parent_attachment_display", "argname_display", "description", "arglang", "page_range", "summary_of_term_groups", "relation_display"]
+    list_display = ["parent_attachment_display", "argname_display", "description", "arglang", "page_range_complete", "summary_of_term_groups", "relation_display"]
     list_display_links = ["argname_display"]
     list_filter = ["parent_attachment", "arglang", "termgroups__articleterm__term", "termgroups__lidiaterm__term", "termgroups__category__category"]
     ordering = ("parent_attachment", "sort_index")
@@ -54,8 +54,10 @@ class AnnotationAdmin(admin.ModelAdmin):
                 "fields": [
                     "parent_attachment",
                     "argname",
+                    "full_quotation",
                     "description",
                     "page_range",
+                    "page_range_in_pdf",
                     "arglang",
                 ],
             }
@@ -75,7 +77,11 @@ class AnnotationAdmin(admin.ModelAdmin):
             }
         )
     ]
-    readonly_fields = ["page_range"]  # Necessary because this is a callable
+    readonly_fields = [
+        "page_range",
+        "page_range_in_pdf",
+        "full_quotation"
+    ]  # Necessary for callables
 
     @admin.display(
         ordering="argname",
@@ -107,6 +113,13 @@ class AnnotationAdmin(admin.ModelAdmin):
         if not obj.relation_type:
             return None
         return f"{obj.get_relation_type_display()} {obj.relation_to}"
+
+    @admin.display(
+        description="page range",
+        ordering="page_start"
+    )
+    def page_range_complete(self, obj: Annotation):
+        return f"{obj.page_range} ({obj.page_range_in_pdf})"
 
 
 class PublicationAdmin(admin.ModelAdmin):

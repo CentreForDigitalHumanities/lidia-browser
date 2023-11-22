@@ -1,3 +1,4 @@
+from typing import Optional
 from django.db import models
 from django.contrib import admin
 
@@ -39,8 +40,18 @@ class BaseAnnotation(models.Model):
     # Allow nullable zotero_annotation to facilitate placeholders
     zotero_annotation = models.OneToOneField(syncmodels.Annotation, verbose_name="Zotero annotation", on_delete=models.CASCADE, null=True, to_field="zotero_id")
     parent_attachment = models.ForeignKey(Publication, verbose_name="publication", on_delete=models.CASCADE, to_field='attachment_id', blank=True, null=True)
-    textselection = models.TextField(verbose_name="quoted text", default='')
+    textselection = models.TextField(default='')
     sort_index = models.CharField(max_length=100, help_text="Index to keep order of annotation in document", default="")
+
+    @property
+    def page_number_in_pdf(self) -> Optional[int]:
+        # Extract page number from sort index, which is the first part before
+        # |, and which starts with zero
+        if self.sort_index:
+            try:
+                return int(self.sort_index.split("|")[0]) + 1
+            except ValueError:
+                return None
 
 
 class Annotation(BaseAnnotation):
@@ -60,7 +71,10 @@ class Annotation(BaseAnnotation):
     page_end = models.CharField(verbose_name="end page", max_length=16, null=True)
     relation_type = models.CharField(max_length=11, choices=RELATION_TYPE_CHOICES, default='')
     relation_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+
+    # Type definitions for related managers
     termgroups: models.Manager["TermGroup"]
+    continuation_annotations: models.Manager["ContinuationAnnotation"]
 
     def __str__(self):
         return self.argname or self.lidia_id or self.zotero_annotation or "(no name or ID)"
@@ -71,13 +85,39 @@ class Annotation(BaseAnnotation):
         return f"{self.page_start}–{self.page_end}"
 
     @property
+    @admin.display(description="Page range in PDF")
+    def page_range_in_pdf(self) -> Optional[str]:
+        if self.page_number_in_pdf is None:
+            return None
+        begin = end = str(self.page_number_in_pdf)
+        # Get continuation annotation with the highest sort index, which will
+        # be the one with the highest page number. Ignore continuation
+        # annotation if the model was not saved.
+        if self.pk and (last_cont := \
+                self.continuation_annotations.order_by("-sort_index").first()):
+            end = last_cont.page_number_in_pdf
+        if end != begin:
+            return f"{begin}–{end}"
+        else:
+            return begin
+
+
+    @property
     @admin.display(description="Terms")
     def summary_of_term_groups(self):
         return ", ".join([str(x) for x in self.termgroups.all()])
 
+    @property
+    @admin.display(description="Quotation")
+    def full_quotation(self):
+        cont = self.continuation_annotations.order_by("sort_index")
+        quotation = self.textselection
+        quotation += ''.join(["\n" + x.textselection for x in cont])
+        return quotation
+
 
 class ContinuationAnnotation(BaseAnnotation):
-    start_annotation = models.ForeignKey(Annotation, on_delete=models.SET_NULL, null=True)
+    start_annotation = models.ForeignKey(Annotation, on_delete=models.SET_NULL, null=True, related_name="continuation_annotations")
 
     def __str__(self):
         if self.start_annotation:

@@ -38,3 +38,39 @@ class TestLanguage:
         language = models.Language(code="nonexisting")
         language.save()
         assert not language.name
+
+
+@pytest.mark.django_db
+class TestBaseAnnotation:
+    def test_page_number_in_pdf(self):
+        baseannot = models.BaseAnnotation(
+            sort_index="00024|000002|00069"
+        )
+        assert baseannot.page_number_in_pdf == 25
+
+    def test_page_number_in_pdf_empty(self):
+        baseannot = models.BaseAnnotation()
+        assert baseannot.page_number_in_pdf is None
+
+
+@pytest.mark.django_db
+class TestAnnotation:
+    def test_page_range_in_pdf_nocont(self):
+        annot = models.Annotation(
+            sort_index="00024|000002|00069"
+        )
+        annot.save()
+        assert annot.page_range_in_pdf == "25"
+
+    def test_page_range_in_pdf_cont(self):
+        annot = models.Annotation(
+            sort_index="00024|000002|00069"
+        )
+        annot.save()
+        cont = models.ContinuationAnnotation(
+            sort_index="00026|000004|00099"
+        )
+        cont.start_annotation = annot
+        cont.save()
+        assert annot.page_range_in_pdf == "25–27"
+
