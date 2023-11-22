@@ -30,10 +30,6 @@ class TermGroupInline(admin.TabularInline):
     extra = 0
 
 
-# class BaseTermGroupListFilter(admin.SimpleListFilter):
-    
-
-
 class AnnotationAdmin(admin.ModelAdmin):
     list_display = ["parent_attachment_display", "argname_display", "description", "arglang", "page_range_complete", "summary_of_term_groups", "relation_display"]
     list_display_links = ["argname_display"]
