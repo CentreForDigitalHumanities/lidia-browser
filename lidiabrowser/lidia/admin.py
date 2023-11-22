@@ -18,7 +18,7 @@ class ContinuationInline(admin.TabularInline):
     model = ContinuationAnnotation
     fk_name = "start_annotation"
     ordering = ("sort_index",)
-    fields = ["textselection", "sort_index"]
+    fields = ["zotero_annotation", "textselection", "sort_index"]
     extra = 0
 
 
@@ -53,7 +53,8 @@ class AnnotationAdmin(admin.ModelAdmin):
     readonly_fields = [
         "page_range",
         "page_range_in_pdf",
-        "full_quotation"
+        "full_quotation",
+        "all_zotero_ids",
     ]  # Necessary for callables
 
     @admin.display(
@@ -119,6 +120,7 @@ class AnnotationAdmin(admin.ModelAdmin):
                 "Technical details", {
                     "fields": [
                         "lidia_id",
+                        "all_zotero_ids",
                     ]
                 }
             )

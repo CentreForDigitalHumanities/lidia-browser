@@ -115,6 +115,16 @@ class Annotation(BaseAnnotation):
         quotation += ''.join(["\n" + x.textselection for x in cont])
         return quotation
 
+    @property
+    @admin.display(description="Zotero annotation IDs")
+    def all_zotero_ids(self) -> str:
+        ids = [self.zotero_annotation_id]
+        ids.extend([
+            x.zotero_annotation_id for x
+            in self.continuation_annotations.order_by("sort_index")
+        ])
+        return ", ".join(ids)
+
 
 class ContinuationAnnotation(BaseAnnotation):
     start_annotation = models.ForeignKey(Annotation, on_delete=models.SET_NULL, null=True, related_name="continuation_annotations")
