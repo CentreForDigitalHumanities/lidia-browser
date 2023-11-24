@@ -1,4 +1,6 @@
+from typing import Optional
 from django.db import models
+from contextlib import suppress
 
 
 class Publication(models.Model):
@@ -7,6 +9,13 @@ class Publication(models.Model):
 
     def __str__(self):
         return self.zotero_id
+
+    @property
+    def zotero_url(self) -> Optional[str]:
+        url = None
+        with suppress(KeyError):
+            url = self.content["links"]["alternate"]["href"]
+        return url
 
 
 class Annotation(models.Model):
