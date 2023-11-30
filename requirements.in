@@ -4,4 +4,3 @@ pyzotero
 Django
 django-environ
 iso639-lang>=2.1.0
-gunicorn
