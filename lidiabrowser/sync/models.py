@@ -32,3 +32,10 @@ class Sync(models.Model):
 
     def __str__(self):
         return f"Library #{self.library_id}"
+
+
+def delete_all() -> None:
+    """Delete all objects in sync app."""
+    Publication.objects.all().delete()
+    Annotation.objects.all().delete()
+    Sync.objects.all().delete()

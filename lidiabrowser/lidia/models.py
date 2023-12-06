@@ -189,3 +189,15 @@ class TermGroup(models.Model):
     def __str__(self):
         lidiaterm = self.lidiaterm.term if self.lidiaterm else None
         return f"{self.articleterm}/{lidiaterm}"
+
+
+def delete_all() -> None:
+    """Delete all objects in lidia app."""
+
+    Publication.objects.all().delete()
+    Language.objects.all().delete()
+    BaseAnnotation.objects.all().delete()
+    ArticleTerm.objects.all().delete()
+    LidiaTerm.objects.all().delete()
+    Category.objects.all().delete()
+    TermGroup.objects.all().delete()
