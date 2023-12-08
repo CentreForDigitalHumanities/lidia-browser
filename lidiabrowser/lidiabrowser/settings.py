@@ -88,8 +88,8 @@ TEMPLATES = [
 WSGI_APPLICATION = "lidiabrowser.wsgi.application"
 
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
+    "version": 1,  # the dictConfig format version
+    "disable_existing_loggers": False,  # retain the default loggers
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
@@ -118,7 +118,6 @@ LOGGING = {
         },
     },
 }
-
 
 
 # Database
