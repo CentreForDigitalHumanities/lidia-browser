@@ -15,19 +15,20 @@ from pathlib import Path
 import environ
 
 root = environ.Path(__file__)
+SITE_ROOT = root()
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 env = environ.Env(
     # Set casting, default value
     # Defaults are for local development; set server config in .env
     SECRET_KEY=(str, 'BmM7FkllTHs_5Q0nsdalUDUlV0Q-B5Pl5uVxwRQSr_E'),
     DEBUG=(bool, True),
     ALLOWED_HOSTS=(list, []),
-    STATIC_ROOT=(str, '../htdocs')
+    STATIC_ROOT=(str, '../htdocs'),
+    LOG_DIR=(str, BASE_DIR.parent)
 )
-
-SITE_ROOT = root()
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 environ.Env.read_env(os.path.join(BASE_DIR.parent, '.env'))
 
@@ -87,20 +88,37 @@ TEMPLATES = [
 WSGI_APPLICATION = "lidiabrowser.wsgi.application"
 
 LOGGING = {
-    "version": 1,  # the dictConfig format version
-    "disable_existing_loggers": False,  # retain the default loggers
+    "version": 1,
+    "disable_existing_loggers": False,
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(env('LOG_DIR'), 'sync.log'),
+            "formatter": 'verbose',
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
     "loggers": {
         "": {
             "handlers": ["console"],
             "level": "INFO",
-        }
+        },
+        "sync": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,  # Don't propagate to root logger
+        },
     },
 }
+
 
 
 # Database
