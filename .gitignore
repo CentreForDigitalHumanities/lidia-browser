@@ -5,3 +5,5 @@
 __pycache__/
 .python-version
 htdocs/
+.idea/
+.venv/
