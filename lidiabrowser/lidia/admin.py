@@ -31,9 +31,11 @@ class TermGroupInline(admin.TabularInline):
 
 
 class AnnotationAdmin(admin.ModelAdmin):
-    list_display = ["parent_attachment_display", "argname_display", "description", "arglang", "page_range_complete", "summary_of_term_groups", "relation_display"]
+    list_display = ["parent_attachment_display", "argname_display", "description", "arglang", "page_range_complete",
+                    "summary_of_term_groups", "relation_display"]
     list_display_links = ["argname_display"]
-    list_filter = ["parent_attachment", "arglang", "termgroups__articleterm__term", "termgroups__lidiaterm__term", "termgroups__category__category"]
+    list_filter = ["parent_attachment", "arglang", "termgroups__articleterm__term", "termgroups__lidiaterm__term",
+                   "termgroups__category__category"]
     ordering = ("parent_attachment", "sort_index")
     inlines = [
         ContinuationInline,
@@ -134,6 +136,7 @@ class AnnotationAdmin(admin.ModelAdmin):
             inlines.append(ContinuationInline)
         return inlines
 
+
 class PublicationAdmin(admin.ModelAdmin):
     list_display = ["zotero_publication", "attachment_id", "title"]
     change_form_template = "lidia/change_form_publication.html"
@@ -142,6 +145,11 @@ class PublicationAdmin(admin.ModelAdmin):
 class LidiaTermAdmin(admin.ModelAdmin):
     list_display = ["term", "vocab"]
     list_filter = ["vocab"]
+    change_form_template = "lidia/change_form_lidiaterm.html"
+
+
+class ArticleTermAdmin(admin.ModelAdmin):
+    change_form_template = "lidia/change_form_articleterm.html"
 
 
 class LanguageAdmin(admin.ModelAdmin):
@@ -153,4 +161,4 @@ admin.site.register(Publication, PublicationAdmin)
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Category)
 admin.site.register(LidiaTerm, LidiaTermAdmin)
-admin.site.register(ArticleTerm)
+admin.site.register(ArticleTerm, ArticleTermAdmin)
