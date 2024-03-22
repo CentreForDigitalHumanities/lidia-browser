@@ -145,7 +145,7 @@ class ArticleTerm(models.Model):
 
 class LidiaTerm(models.Model):
     VOCAB_CHOICES = [
-        ('lol', 'Lexicon of Linguistics'),
+        ('lidia', 'LIDIA'),
         ('custom', 'custom'),
     ]
 

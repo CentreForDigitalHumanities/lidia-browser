@@ -68,7 +68,7 @@ def create_lidiaterm(lexiconterm: str, customterm: str) -> Optional[LidiaTerm]:
         vocab = 'custom'
         term = customterm
     else:
-        vocab = 'lol'
+        vocab = 'lidia'
         term = lexiconterm
     lidiaterm, _ = LidiaTerm.objects.get_or_create(
         vocab=vocab,
