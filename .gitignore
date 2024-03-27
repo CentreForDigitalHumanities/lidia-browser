@@ -8,3 +8,4 @@ __pycache__/
 htdocs/
 .idea/
 .venv/
+data/
