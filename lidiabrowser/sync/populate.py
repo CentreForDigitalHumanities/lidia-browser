@@ -1,12 +1,11 @@
-from typing import Optional
-from django.db import transaction
-
-import yaml
 import logging
+import yaml
+
 import openpyxl
+from django.db import transaction
+from typing import Optional
 
 import sync.models as syncmodels
-from sync.zoteroutils import get_attachment_url, get_attachment_id_from_url
 from lidia.models import (
     Annotation,
     ArticleTerm,
@@ -18,6 +17,8 @@ from lidia.models import (
     Publication,
     TermGroup,
 )
+from sync.zoteroutils import get_attachment_url, get_attachment_id_from_url
+
 
 logger = logging.getLogger(__name__)
 
