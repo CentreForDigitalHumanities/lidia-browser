@@ -1,4 +1,7 @@
 import logging
+import os
+import shutil
+import urllib.request
 import yaml
 
 import openpyxl
@@ -25,6 +28,25 @@ logger = logging.getLogger(__name__)
 
 LIDIAPREFIX = "~~~~LIDIA~~~~"
 LEXICON_URLS = {}
+
+
+def fetch_lexicon_data():
+    url = "https://github.com/CentreForDigitalHumanities/lidia-zotero/raw/main/vocabulary/lexicon.xlsx"
+    filename = "../data/lexicon.xlsx"
+
+    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+        logger.info("Lexicon spreadsheet already downloaded.")
+        return
+
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+    try:
+        with urllib.request.urlopen(url) as response:
+            with open(filename, 'wb') as out_file:
+                shutil.copyfileobj(response, out_file)
+        logger.info("Lexicon spreadsheet downloaded successfully.")
+    except Exception as e:
+        logger.error(f"Error downloading lexicon spreadsheet: {e}")
 
 
 def load_lexicon_data():
@@ -139,6 +161,7 @@ def create_term_group(annotation: Annotation, index: int, data: dict) -> TermGro
 
 
 def populate():
+    fetch_lexicon_data()
     load_lexicon_data() # Load LEXICON_URLS global
 
     for pub in syncmodels.Publication.objects.iterator():
