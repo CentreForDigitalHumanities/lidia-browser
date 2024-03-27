@@ -3,6 +3,7 @@ from django.db import transaction
 
 import yaml
 import logging
+import openpyxl
 
 import sync.models as syncmodels
 from sync.zoteroutils import get_attachment_url, get_attachment_id_from_url
@@ -22,6 +23,23 @@ logger = logging.getLogger(__name__)
 
 
 LIDIAPREFIX = "~~~~LIDIA~~~~"
+LEXICON_URLS = {}
+
+
+def load_lexicon_data():
+    workbook = openpyxl.load_workbook('../data/lexicon.xlsx')
+    sheet = workbook.active
+    headers = {}
+    for i, cell in enumerate(sheet[1]):  # Get headers from the first row
+        headers[cell.value] = i
+    for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip header
+        slug = row[headers['slug']]
+        # Store terms and urls if they exist
+        LEXICON_URLS[slug] = []
+        if row[headers['ull']]:
+            LEXICON_URLS[slug].append({'vocab': 'ull', 'term': row[headers['ull']], 'url': row[headers['ull-url']]})
+        if row[headers['ccr']]:
+            LEXICON_URLS[slug].append({'vocab': 'ccr', 'term': row[headers['ccr']], 'url': row[headers['ccr-url']]})
 
 
 def process_continuation_annotations() -> None:
@@ -60,6 +78,7 @@ def process_continuation_annotations() -> None:
 
 
 def create_lidiaterm(lexiconterm: str, customterm: str) -> Optional[LidiaTerm]:
+    urls_data = None
     if not lexiconterm:
         return None
     if lexiconterm == 'custom':
@@ -70,10 +89,14 @@ def create_lidiaterm(lexiconterm: str, customterm: str) -> Optional[LidiaTerm]:
     else:
         vocab = 'lidia'
         term = lexiconterm
+        if term in LEXICON_URLS:
+            urls_data = LEXICON_URLS[term]
     lidiaterm, _ = LidiaTerm.objects.get_or_create(
         vocab=vocab,
-        term=term
+        term=term,
+        defaults={'urls': urls_data}
     )
+
     return lidiaterm
 
 
@@ -115,6 +138,8 @@ def create_term_group(annotation: Annotation, index: int, data: dict) -> TermGro
 
 
 def populate():
+    load_lexicon_data() # Load LEXICON_URLS global
+
     for pub in syncmodels.Publication.objects.iterator():
         with transaction.atomic():
             zotero_id = pub.zotero_id
