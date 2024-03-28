@@ -149,6 +149,7 @@ class LidiaTermAdmin(admin.ModelAdmin):
     fields = ["term", "vocab", "formatted_urls"]
     change_form_template = "lidia/change_form_lidiaterm.html"
 
+    @admin.display(description="URLs")
     def formatted_urls(self, obj):
         if obj.urls:
             links = [
@@ -157,7 +158,6 @@ class LidiaTermAdmin(admin.ModelAdmin):
             ]
             return format_html_join(', ', '{}: {}', (link for link in links))
         return ''  # Return an empty string if there are no URLs
-    formatted_urls.short_description = "URLs"
 
 
 class ArticleTermAdmin(admin.ModelAdmin):

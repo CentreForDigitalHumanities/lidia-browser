@@ -5,6 +5,7 @@ import urllib.request
 import yaml
 
 import openpyxl
+from django.conf import settings
 from django.db import transaction
 from typing import Optional
 
@@ -31,8 +32,8 @@ LEXICON_URLS = {}
 
 
 def fetch_lexicon_data():
-    url = "https://github.com/CentreForDigitalHumanities/lidia-zotero/raw/main/vocabulary/lexicon.xlsx"
-    filename = "../data/lexicon.xlsx"
+    url = settings.LEXICON_URL
+    filename = settings.LEXICON_FILEPATH
 
     if os.path.isfile(filename) and os.path.getsize(filename) > 0:
         logger.info("Lexicon spreadsheet already downloaded.")
@@ -41,17 +42,17 @@ def fetch_lexicon_data():
     os.makedirs(os.path.dirname(filename), exist_ok=True)
 
     try:
-        with urllib.request.urlopen(url) as response:
-            with open(filename, 'wb') as out_file:
-                shutil.copyfileobj(response, out_file)
+        with urllib.request.urlopen(url) as response, \
+        open(filename, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
         logger.info("Lexicon spreadsheet downloaded successfully.")
     except Exception as e:
         logger.error(f"Error downloading lexicon spreadsheet: {e}")
 
 
 def load_lexicon_data():
-    workbook = openpyxl.load_workbook('../data/lexicon.xlsx')
-    sheet = workbook.active
+    workbook = openpyxl.load_workbook(settings.LEXICON_FILEPATH)
+    sheet = workbook['entries']
     headers = {}
     for i, cell in enumerate(sheet[1]):  # Get headers from the first row
         headers[cell.value] = i

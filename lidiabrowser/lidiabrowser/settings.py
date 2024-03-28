@@ -180,3 +180,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ZOTERO_LIBRARY_ID = env.str("ZOTERO_LIBRARY_ID")
 ZOTERO_LIBRARY_TYPE = env.str("ZOTERO_LIBRARY_TYPE")
 ZOTERO_API_KEY = env.str("ZOTERO_API_KEY")
+# LEXICON locations can be set in .env to override defaults
+LEXICON_URL = env.str('LEXICON_URL', "https://github.com/CentreForDigitalHumanities/lidia-zotero/raw/main/vocabulary/lexicon.xlsx")
+LEXICON_FILEPATH = env.str('LEXICON_FILEPATH', BASE_DIR / "data" / "lexicon.xlsx")
