@@ -1,6 +1,7 @@
 from typing import List, Type
 from django.contrib import admin
 from django.http import HttpRequest
+from django.utils.html import format_html_join, format_html
 
 from .models import (
     Annotation,
@@ -143,9 +144,20 @@ class PublicationAdmin(admin.ModelAdmin):
 
 
 class LidiaTermAdmin(admin.ModelAdmin):
-    list_display = ["term", "vocab"]
+    list_display = ["term", "vocab", "formatted_urls"]
     list_filter = ["vocab"]
+    fields = ["term", "vocab", "formatted_urls"]
     change_form_template = "lidia/change_form_lidiaterm.html"
+
+    @admin.display(description="URLs")
+    def formatted_urls(self, obj):
+        if obj.urls:
+            links = [
+                (item['vocab'], format_html('<a href="{}">{}</a>', item['url'], item['term']))
+                for item in obj.urls
+            ]
+            return format_html_join(', ', '{}: {}', (link for link in links))
+        return ''  # Return an empty string if there are no URLs
 
 
 class ArticleTermAdmin(admin.ModelAdmin):

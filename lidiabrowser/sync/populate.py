@@ -1,11 +1,15 @@
-from typing import Optional
-from django.db import transaction
-
-import yaml
 import logging
+import os
+import shutil
+import urllib.request
+import yaml
+
+import openpyxl
+from django.conf import settings
+from django.db import transaction
+from typing import Optional
 
 import sync.models as syncmodels
-from sync.zoteroutils import get_attachment_url, get_attachment_id_from_url
 from lidia.models import (
     Annotation,
     ArticleTerm,
@@ -17,11 +21,49 @@ from lidia.models import (
     Publication,
     TermGroup,
 )
+from sync.zoteroutils import get_attachment_url, get_attachment_id_from_url
+
 
 logger = logging.getLogger(__name__)
 
 
 LIDIAPREFIX = "~~~~LIDIA~~~~"
+LEXICON_URLS = {}
+
+
+def fetch_lexicon_data():
+    url = settings.LEXICON_URL
+    filename = settings.LEXICON_FILEPATH
+
+    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+        logger.info("Lexicon spreadsheet already downloaded.")
+        return
+
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+    try:
+        with urllib.request.urlopen(url) as response, \
+        open(filename, 'wb') as out_file:
+            shutil.copyfileobj(response, out_file)
+        logger.info("Lexicon spreadsheet downloaded successfully.")
+    except Exception as e:
+        logger.error(f"Error downloading lexicon spreadsheet: {e}")
+
+
+def load_lexicon_data():
+    workbook = openpyxl.load_workbook(settings.LEXICON_FILEPATH)
+    sheet = workbook['entries']
+    headers = {}
+    for i, cell in enumerate(sheet[1]):  # Get headers from the first row
+        headers[cell.value] = i
+    for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip header
+        slug = row[headers['slug']]
+        # Store terms and urls if they exist
+        LEXICON_URLS[slug] = []
+        if row[headers['ull']]:
+            LEXICON_URLS[slug].append({'vocab': 'ull', 'term': row[headers['ull']], 'url': row[headers['ull-url']]})
+        if row[headers['ccr']]:
+            LEXICON_URLS[slug].append({'vocab': 'ccr', 'term': row[headers['ccr']], 'url': row[headers['ccr-url']]})
 
 
 def process_continuation_annotations() -> None:
@@ -60,6 +102,7 @@ def process_continuation_annotations() -> None:
 
 
 def create_lidiaterm(lexiconterm: str, customterm: str) -> Optional[LidiaTerm]:
+    urls_data = None
     if not lexiconterm:
         return None
     if lexiconterm == 'custom':
@@ -68,12 +111,16 @@ def create_lidiaterm(lexiconterm: str, customterm: str) -> Optional[LidiaTerm]:
         vocab = 'custom'
         term = customterm
     else:
-        vocab = 'lol'
+        vocab = 'lidia'
         term = lexiconterm
+        if term in LEXICON_URLS:
+            urls_data = LEXICON_URLS[term]
     lidiaterm, _ = LidiaTerm.objects.get_or_create(
         vocab=vocab,
-        term=term
+        term=term,
+        defaults={'urls': urls_data}
     )
+
     return lidiaterm
 
 
@@ -115,6 +162,9 @@ def create_term_group(annotation: Annotation, index: int, data: dict) -> TermGro
 
 
 def populate():
+    fetch_lexicon_data()
+    load_lexicon_data() # Load LEXICON_URLS global
+
     for pub in syncmodels.Publication.objects.iterator():
         with transaction.atomic():
             zotero_id = pub.zotero_id

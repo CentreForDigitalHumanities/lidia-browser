@@ -145,12 +145,13 @@ class ArticleTerm(models.Model):
 
 class LidiaTerm(models.Model):
     VOCAB_CHOICES = [
-        ('lol', 'Lexicon of Linguistics'),
+        ('lidia', 'LIDIA'),
         ('custom', 'custom'),
     ]
 
     vocab = models.CharField("vocabulary", max_length=6, choices=VOCAB_CHOICES)
     term = models.CharField("LIDIA term", max_length=100)
+    urls = models.JSONField("URLs", null=True, blank=True)
 
     class Meta:
         unique_together = [['vocab', 'term']]
