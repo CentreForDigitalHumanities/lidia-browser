@@ -1,7 +1,7 @@
 python-dotenv
 pyyaml
 pyzotero
-Django
+Django~=4.2
 django-environ
 iso639-lang>=2.1.0
 openpyxl

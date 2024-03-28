@@ -35,7 +35,6 @@ To run on a local machine, use:
 ```sh
 cd lidiabrowser
 python manage.py migrate
-python manage.py runserver
 python manage.py sync
 python manage.py populate
 python manage.py runserver
