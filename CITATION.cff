@@ -22,9 +22,9 @@ abstract: >-
   A Django project for syncing and displaying Zotero data.
   The "sync" app synchronizes publication and annotation
   data from a Zotero library to the Django database
-  (pull/read-only); the "lidiabrowser" app converts LIDIA
-  YAML annotations to Django models and adds a browse/search
-  interface.
+  (pull/read-only); the "lidia" app converts LIDIA
+  YAML annotations to Django models and adds browse/search
+  functionality based on the Django admin interface.
 keywords:
   - Zotero
   - Django
