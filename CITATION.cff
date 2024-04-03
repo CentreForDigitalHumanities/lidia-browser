@@ -8,13 +8,14 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - name: >-
-      Research Software Lab, Centre for Digital Humanities,
-      Utrecht University
-    city: Utrecht
-    country: NL
-    website: >-
-      https://github.com/CentreForDigitalHumanities/lidia-browser
+  - given-names: Arjan
+    family-names: Mossel
+    affiliation: 'Centre for Digital Humanities, Utrecht University'
+    orcid: 'https://orcid.org/0000-0001-7492-3789'
+  - given-names: Tijmen
+    family-names: Baarda
+    affiliation: 'Centre for Digital Humanities, Utrecht University'
+    orcid: 'https://orcid.org/0000-0002-2577-4948'
 identifiers:
   - type: doi
     value: 10.5281/zenodo.10891417
@@ -26,11 +27,12 @@ abstract: >-
   A Django project for syncing and displaying Zotero data.
   The "sync" app synchronizes publication and annotation
   data from a Zotero library to the Django database
-  (pull/read-only); the "lidia" app converts LIDIA
-  YAML annotations to Django models and adds browse/search
+  (pull/read-only); the "lidia" app converts LIDIA YAML
+  annotations to Django models and adds browse/search
   functionality based on the Django admin interface.
 keywords:
   - Zotero
   - Django
   - linguistics
+  - annotation
 license: BSD-3-Clause
