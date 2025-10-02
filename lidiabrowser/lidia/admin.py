@@ -157,6 +157,12 @@ class PublicationAdmin(admin.ModelAdmin):
     list_display = ["zotero_publication", "attachment_id", "title"]
     change_form_template = "lidia/change_form_publication.html"
 
+    def get_queryset(self, request: HttpRequest):
+        """Optimize queries for list views."""
+        qs = super().get_queryset(request)
+        qs = qs.select_related('zotero_publication')
+        return qs
+
 
 class LidiaTermAdmin(admin.ModelAdmin):
     list_display = ["term", "vocab", "formatted_urls"]
