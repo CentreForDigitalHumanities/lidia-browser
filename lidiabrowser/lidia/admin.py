@@ -56,6 +56,21 @@ class AnnotationAdmin(admin.ModelAdmin):
         "all_zotero_ids",
     ]  # Necessary for callables
 
+    def get_queryset(self, request: HttpRequest):
+        """Optimize queries for list views."""
+        qs = super().get_queryset(request)
+        # Use select_related for ForeignKey fields accessed in list_display
+        qs = qs.select_related('parent_attachment', 'arglang', 'relation_to')
+        # Use prefetch_related for reverse ForeignKey (termgroups, continuation_annotations)
+        # and their nested relations
+        qs = qs.prefetch_related(
+            'termgroups__articleterm',
+            'termgroups__lidiaterm',
+            'termgroups__category',
+            'continuation_annotations',
+        )
+        return qs
+
     @admin.display(
         ordering="argname",
         description="name",
