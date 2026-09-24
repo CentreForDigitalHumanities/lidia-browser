@@ -32,7 +32,7 @@ jobs:
           pip install -r requirements-dev.txt
       - name: Lint with ruff
         run: |
-          ruff check --output-format=github --target-version=py314 .
+          ruff check --output-format=github .
       - name: Test with pytest
         run: |
           cp .env.dist .env

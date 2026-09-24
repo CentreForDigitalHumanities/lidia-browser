@@ -1,6 +1,6 @@
-from django.conf import settings
-
 import logging
+
+from django.conf import settings
 from pyzotero import zotero
 
 from sync.models import Annotation, Publication, Sync
@@ -40,7 +40,7 @@ def sync_publications(zot: zotero.Zotero, since: int):
             n_created += 1
         else:
             n_updated += 1
-    logging.info(
+    logger.info(
         f"Updated {n_updated} publications; added {n_created} new publications."
     )
 
@@ -64,7 +64,7 @@ def sync_annotations(zot: zotero.Zotero, since: int):
             n_created += 1
         else:
             n_updated += 1
-    logging.info(f"Updated {n_updated} annotations; added {n_created} new annotations.")
+    logger.info(f"Updated {n_updated} annotations; added {n_created} new annotations.")
 
 
 def get_local_library_version(zot: zotero.Zotero):
@@ -83,7 +83,7 @@ def get_local_library_version(zot: zotero.Zotero):
 
 def update_local_library_version(zot: zotero.Zotero, version: int):
     if not isinstance(version, int):
-        raise ValueError("version argument should be of type int")
+        raise TypeError("version argument should be of type int")
     library_id = zot.library_id
     sync, _ = Sync.objects.get_or_create(
         library_id=library_id, defaults={"library_version": version}
@@ -111,5 +111,4 @@ def sync() -> None:
         logger.info("Sync successful")
     else:
         logger.info("Local library up to date; not syncing")
-
 

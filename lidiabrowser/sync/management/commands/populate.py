@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandParser
 
-from sync.populate import populate
 from lidia.models import delete_all
+from sync.populate import populate
 
 
 class Command(BaseCommand):

@@ -1,8 +1,8 @@
 import pytest
 from django.contrib.auth.models import Group, Permission
 
+from lidia import models
 from lidiabrowser.init import initiate_groups
-import lidia.models as models
 
 
 @pytest.mark.django_db

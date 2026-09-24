@@ -1,17 +1,16 @@
-from typing import List, Type
 from django.contrib import admin
 from django.http import HttpRequest
-from django.utils.html import format_html_join, format_html
+from django.utils.html import format_html, format_html_join
 
 from .models import (
     Annotation,
     ArticleTerm,
+    Category,
     ContinuationAnnotation,
+    Language,
     LidiaTerm,
     Publication,
-    Language,
     TermGroup,
-    Category,
 )
 
 
@@ -145,7 +144,7 @@ class AnnotationAdmin(admin.ModelAdmin):
         return fieldsets
 
     def get_inlines(self, request: HttpRequest, obj=None):
-        inlines: List[Type[admin.TabularInline]] = [TermGroupInline]
+        inlines: list[type[admin.TabularInline]] = [TermGroupInline]
         if request.user.is_superuser:  # type: ignore
             # Only show continuation annotations to superuser because
             # for normal users this distinction is irrelevant

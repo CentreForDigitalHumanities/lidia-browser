@@ -1,8 +1,6 @@
-from typing import Optional
-from django.db import models
-from django.contrib import admin
-
 import iso639
+from django.contrib import admin
+from django.db import models
 
 import sync.models as syncmodels
 
@@ -44,7 +42,7 @@ class BaseAnnotation(models.Model):
     sort_index = models.CharField(max_length=100, help_text="Index to keep order of annotation in document", default="")
 
     @property
-    def page_number_in_pdf(self) -> Optional[int]:
+    def page_number_in_pdf(self) -> int | None:
         # Extract page number from sort index, which is the first part before
         # |, and which starts with zero
         if self.sort_index:
@@ -73,8 +71,8 @@ class Annotation(BaseAnnotation):
     relation_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
 
     # Type definitions for related managers
-    termgroups: models.Manager["TermGroup"]
-    continuation_annotations: models.Manager["ContinuationAnnotation"]
+    termgroups: models.Manager[TermGroup]
+    continuation_annotations: models.Manager[ContinuationAnnotation]
 
     def __str__(self):
         return self.argname or self.lidia_id or self.zotero_annotation or "(no name or ID)"
@@ -86,7 +84,7 @@ class Annotation(BaseAnnotation):
 
     @property
     @admin.display(description="Page range in PDF")
-    def page_range_in_pdf(self) -> Optional[str]:
+    def page_range_in_pdf(self) -> str | None:
         if self.page_number_in_pdf is None:
             return None
         begin = end = str(self.page_number_in_pdf)
