@@ -46,3 +46,17 @@ You can remove raw sync data or converted sync data from the database using the 
 python manage.py sync --refresh
 python manage.py populate --refresh
 ```
+
+## Development
+
+```sh
+uv pip install -r requirements-dev.txt
+```
+
+```sh
+# Upgrade dependencies
+uv pip compile requirements.in --universal --upgrade --output-file requirements.txt --python-version 3.14
+uv pip compile requirements-dev.in --universal --upgrade --output-file requirements-dev.txt --python-version 3.14
+# Run tests:
+pytest lidiabrowser
+```
