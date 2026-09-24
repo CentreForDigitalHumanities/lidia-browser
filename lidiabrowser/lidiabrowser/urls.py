@@ -20,7 +20,6 @@ from django.urls import path
 
 from .autologin import index_view_autologin
 
-
 urlpatterns = [
     path(
         "browser/password_reset/",

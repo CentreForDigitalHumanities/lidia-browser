@@ -1,0 +1,9 @@
+target-version = "py314"
+src = ["lidiabrowser"]
+
+[lint.per-file-ignores]
+# Django declarations intentionally share class-level configuration.
+"lidiabrowser/lidia/admin.py" = ["RUF012"]
+"lidiabrowser/lidia/models.py" = ["RUF012"]
+# Preserve generated migrations while retaining other correctness checks.
+"**/migrations/*.py" = ["I001", "RUF012"]

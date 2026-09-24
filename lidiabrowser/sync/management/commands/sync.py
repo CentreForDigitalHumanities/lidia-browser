@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandParser
 
-from sync.zoterosync import sync
 from sync.models import delete_all
+from sync.zoterosync import sync
 
 
 class Command(BaseCommand):

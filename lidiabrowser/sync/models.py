@@ -1,6 +1,6 @@
-from typing import Optional
-from django.db import models
 from contextlib import suppress
+
+from django.db import models
 
 
 class Publication(models.Model):
@@ -11,7 +11,7 @@ class Publication(models.Model):
         return self.zotero_id
 
     @property
-    def zotero_url(self) -> Optional[str]:
+    def zotero_url(self) -> str | None:
         url = None
         with suppress(KeyError):
             url = self.content["links"]["alternate"]["href"]

@@ -2,12 +2,11 @@ import logging
 import os
 import shutil
 import urllib.request
-import yaml
 
 import openpyxl
+import yaml
 from django.conf import settings
 from django.db import transaction
-from typing import Optional
 
 import sync.models as syncmodels
 from lidia.models import (
@@ -21,8 +20,7 @@ from lidia.models import (
     Publication,
     TermGroup,
 )
-from sync.zoteroutils import get_attachment_url, get_attachment_id_from_url
-
+from sync.zoteroutils import get_attachment_id_from_url, get_attachment_url
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +44,9 @@ def fetch_lexicon_data():
         open(filename, 'wb') as out_file:
             shutil.copyfileobj(response, out_file)
         logger.info("Lexicon spreadsheet downloaded successfully.")
-    except Exception as e:
-        logger.error(f"Error downloading lexicon spreadsheet: {e}")
+    except Exception:
+        logger.exception("Error downloading lexicon spreadsheet")
+        raise
 
 
 def load_lexicon_data():
@@ -101,7 +100,7 @@ def process_continuation_annotations() -> None:
         annotation.delete()
 
 
-def create_lidiaterm(lexiconterm: str, customterm: str) -> Optional[LidiaTerm]:
+def create_lidiaterm(lexiconterm: str, customterm: str) -> LidiaTerm | None:
     urls_data = None
     if not lexiconterm:
         return None
@@ -265,4 +264,3 @@ def populate():
         )
         # TODO: include a warning in the annotations having invalid references
         remaining_placeholders.delete()
-
